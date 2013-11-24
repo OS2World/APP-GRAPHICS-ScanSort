@@ -1,0 +1,14 @@
+memory.obj: memory.c scansort.h
+string.obj: string.c scansort.h
+csv.obj: csv.c scansort.h
+options.obj: options.c scansort.h
+trade.obj: trade.c scansort.h
+report.obj: report.c scansort.h
+havelist.obj: havelist.c scansort.h
+file.obj: file.c scansort.h
+ext_funcs.obj: ext_funcs.c scansort.h
+csv_model.obj: csv_model.c scansort.h
+scan.obj: scan.c scansort.h
+main.obj: main.c scansort.h
+fsplit.obj: fsplit.c scansort.h
+platform_win32.obj: platform_win32.c scansort.h

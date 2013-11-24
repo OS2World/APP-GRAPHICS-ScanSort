@@ -1,0 +1,767 @@
+.\"
+.\" Man Page for scansort
+.\" groff -man -Tascii scansort.1
+.\"
+.\" Comments to Michael-John Turner <mj@energetic.uct.ac.za>
+.\"
+.TH SCANSORT 1 "JULY 1999" 
+.SH NAME
+scansort \- Image Sorting and Verification Utility
+.SH SYNOPSIS
+\fBscansort\fR [options] configfile directory
+.br
+
+Options:
+.br
+[-_aBbKlMmRrTtuvw] -L[e] -r[AbcDdEfHIMnRoSTXx] -H[bx] -t[AaMmOhAo] -tg 
+[-eextension]
+[-scollection]
+[-dbdirectory]
+[-dcdirectory]
+[-dbdirectory]
+[-dpdirectory]
+[-drdirectory]
+[-dsdirectory]
+[-dtdirectory]
+[-dwdirectory]
+[-bsize]
+[-hhavelist]
+[-Mc]
+[-MC]
+[-Mp]
+[-Mmmodel]
+[-Mnname]
+[-tqnumber]
+[-tznumber]
+[-xbnumber]
+
+
+.SH DESCRIPTION
+\fBScanSort\fR is a utility that can be used to identify, verify and sort images
+based upon information contained in CSV files. It can also generate 
+reports about the status of image collections and create archives of
+files to trade with others.
+
+Features include:
+.IP \(bu
+automagically sorting new files and putting them where they belong, even 
+if they have been renamed
+.IP \(bu
+quickly processing ALL collections in one run
+.IP \(bu
+searching directory trees for pictures (e.g. complete CDs)
+.IP \(bu
+CRC-Checking, taking CSVs with or without CRCs
+.IP \(bu
+generating report files (like MTCM for Windows, or widely configurable)
+.IP \(bu
+spanning collections over multiple volumes
+.IP \(bu
+automatically repairing some corrupt files
+.IP \(bu
+generating descript.ion files
+.IP \(bu
+support for trading (matching reports against collections, copying files 
+to send into a directory or packing them into zipfiles)
+.IP \(bu
+creating, updating, verifying, managing CSV files
+.IP \(bu
+creating model based collections (searching all pictures for a specific model)
+
+
+.SH OPTIONS
+Options may be prefixed by either a dash ("-") or, on non-UNIX systems,
+a forward slash ("/"). Options cannot be combined (ie you have to do
+a "-m -v", "-mv" will not work).
+ 
+.SS GENERAL OPTIONS
+
+
+.TP
+.I "\-_"
+Spaces in picture names are converted to '_' by default, as are
+umlauts and special characters - K<E2>t<E2> becomes Kata.
+You can turn this feature off with this switch.
+
+.TP
+.I "\-a"
+Check all files (regardless of extension).
+If you have pictures named pic.001, pic.002 or something similar.
+Not needed any more for sorting collections with different file types.
+
+.TP
+.I "\-b"
+Always delete bad files (see below).
+
+.TP
+.I "\-exyz" 
+Set file extension to xyz (instead of jpg).
+So you can sort collections of wavelet or fractal compressed pictures 
+in the future ! :)
+
+.TP
+.I "\-K"
+Kill duplicate CSV-files (see below).
+
+.TP
+.I "\-l"     
+Don't write a logfile.
+By default, a lot of info is written to "scansort.log" in the current path.
+
+.TP
+.I "\-L"
+Write lower-case file names (forces all filenames to lowercase).
+
+.TP
+.I "\-Le"
+Write lower-case file extensions names (forces all file extensions to lowercase).
+
+.TP
+.I "\-M"
+Give help on model collections.
+
+.TP
+.I "\-m"
+Move files (erase source files).
+All files you already have in your collection are deleted from the
+source path (those you don't have are copied and then deleted -
+if the copying was succesful).
+
+.TP
+.I "\-R"
+Do not recurse the given paths (search subdirectories) when searching for pictures
+(added by request).
+
+.TP
+.I "\-r"
+Give help on reports.
+
+
+.TP
+.I "\-sNAME" 
+Process single collection NAME
+\fI-s*\fR means "all collections". If you use a config file with this option,
+the collections listed in the config file are ignored and only those on the
+command line are processed.
+
+.TP
+.I "\-T"
+Touch pictures (set to current date/time) when moving into collection.
+
+.TP
+.I "\-t"
+Give help on trading.
+
+.TP
+.I "\-u"
+No uppercase for DOS-Filenames.
+By default, filenames with 8 or less characters ("DOS-Names") are
+converted to uppercase. This switch turns this feature off.
+
+.TP
+.I "\-v"
+More verbose messages (rather obsolete...).
+
+.TP
+.I "\-xi"
+Make nested directories for collections, for example Scanmaster_Index is
+put into the directory "Scanmaster\Index" and "ScanmasterExtras" into
+"Scanmaster\Extras".
+
+.TP
+.I "\-xu"
+Include the names of unused CSVs in the log file.
+
+
+.SS DIRECTORY OPTIONS
+
+You can use a ~ to represent your home directory under both UNIX and
+Win32. Under Win32 you need to set the HOME environment variable
+manually for this to work.
+
+.TP
+.I "\-dbDIR"
+Set directory where bad pictures go to (instead of "BadPictures").
+
+.TP
+.I "\-dcDIR"
+Set directory for CSV-files to DIR.
+.br
+(default: path of config file)
+
+.TP
+.I "\-dpDIR"
+Set collection directory to DIR.  You can override this by specifying an 
+absolute path for the target in the config file.
+The pictures are copied to DIR/CollectionName.
+.br
+(default: current dir)
+
+.TP
+.I "\-drDIR"
+Set directory for report files to DIR.
+You can override this by specifying an absolute path for the report
+in the config file.
+.br
+(default: current dir)
+
+.TP 
+.I "\-dsDIR"
+Set source directory for files to copied when trading.
+.br
+(default: collection dir)
+
+.TP 
+.I "\-dtDIR"
+Set trading directory for files generated or copied.
+.br
+(default: current dir)
+
+
+.TP
+.I "\-dwDIR"
+Set directory where files go when they are deleted (the wastebasket).
+See below for more informaiton on the wastebasket.
+
+
+.SS REPORT OPTIONS
+\fbScanSort\fR supports both Mastertech-style reports and its own
+(more flexible) reports. If you use \fI-rM\fR Mastertech-style
+reports will be produced, but if you use any of \fI-r[hmiesa]\fR,
+\fbScanSort\fR-style reports will be generated.
+
+.TP
+.I "\-rA"
+Report all collections in the config file, even the inactive ones 
+(those of which you don't have any pictures).
+
+.TP
+.I "\-rb"
+Brief (don't include image descriptions).
+
+.TP
+.I "\-rc"
+CRC-check all files (SSLLOOWW). Use this only if you think your harddisk could
+be corrupt, or to verify a freshly burnt CD. Remember: ALL pictures were 
+CRC-checked when they were added to the collection!
+
+.TP
+.I "\-rE"
+No empty reports: best used with \fI-rmies\fR (everything except the files you have).
+Then there won't be reports for complete collections showing just the summary.
+
+.TP
+.I "\-rf"
+Freshen: only create a report for a collection for which new pictures were added,
+or for which the report was missing or older than the CSV.
+Needed to keep a web page up to date (to see which reports have changed).
+
+.TP
+.I "\-rIsome_comment"
+Add "some_comment" to every report. This switch can only be used
+in the config file.
+
+.TP
+.I \"-rM"
+Mastertech-style reports (only have missing, name, length and description).
+
+.TP
+.I "\-rn"
+Add numbers of have/all to report names (results in CSA_239-240.txt, for example).
+
+.TP
+.I "\-rR"
+Recurse collection for report generation, like in versions before 1.61.
+This is not recommended and only needed if pictures were manually moved to 
+subdirectories.
+
+.TP
+.I "\-rr"
+Don't generate reports. Now, what could this be good for?
+Well, I'm using \fI-rmiesbofE\fR in my config file, but don't want to generate reports
+in every run. So I can
+.br
+a) use \fI-rr\fR in the command line to suppress them for one run.
+.br
+b) use \fI-rr\fR in the config file to suppress them always and \fI-rr\fR in the command line
+to turn them back on (\fI-rH\fR and \fI-rT\fR will turn them on as well).
+
+
+.SS ADDITIONAL REPORT OPTIONS:
+
+.TP
+.I "\-rd"
+Create "descript.ion" files.
+
+.TP
+.I "\-rD"
+Create descript.ion as hidden files.
+descript.ion is only created if there ARE descriptions in the CSV!
+This is the same as \fI-rd\fR if you're using UNIX as UNIX has no
+concept of a "hidden" file without a dot as the first character
+in the name.
+
+.TP
+.I "\-rH"
+Create "have.txt" for multi-volume-spanning (see below).
+
+
+.TP
+.I "\-ro"
+Output the collection summary to the file "summary.txt" in the report path.
+(complete collections first, then the rest).
+
+.TP
+.I "\-rS"
+Print summary for every collection in table form on the screen,
+not only into the logfile.
+
+.TP
+.I "\-rT"
+Create an HTML table for my homepage. Don't know if anybody else 
+can use this  :-)
+It also creates the CSV zips I supply automatically. \fI-rTv\fR ("vacation") omits
+the links for the text files to offer only the CSVs.
+This option searches for a file "trade_tp.html" in the report directory and creates
+a file "trade.html" out of it. It compares line by line:
+
+.br
+CHANGE-DATE - insert current date/time
+.br
+COMPLETE-TABLE - insert table of complete collections
+.br
+INCOMPLETE-TABLE - insert table of incomplete collections (you guessed that ;-) )
+
+.TP
+.I "\-rX"
+Export missing files into CSVs, one per collection.
+
+.TP
+.I "\-rx"
+Export all missing pictures into "missing.csv" to get a quick overview
+(only missing pictures from active collections, ie collections from which
+you have at least one picture).
+
+
+
+.SS WASTEBASKET OPTIONS AND HANDLING OF BAD FILES
+
+When duplicate files are found, \fBScanSort\fR moves them to a 
+wastebasket
+directory rather than removing them from disk. Files that are
+damaged are moved to a "BadPictures" directory.
+
+.TP
+.I "\-B"
+If you use the option \fI-B\fR bad files are left alone completely (but still
+checked if they could be repaired).
+
+.TP
+.I "\-b"
+If you use the \fI-b\fR option bad files are never copied and always deleted
+(but first checked if they can be repaired).
+
+.TP
+.I "\-b40"
+Only copy bad files if their size is at least 40% of the original size,
+otherwise delete (with \fI-m\fR). This was the default behaviour until version 1.61,
+and was changed after someone lost a bunch of files with stupid names
+(there are lots of collections with pictures named "img0001", "img0002", ...).
+For example, use \fI-b57\fR for 57%.
+
+
+.TP
+.I "\-w"
+Will turn off the wastebasket feature and have duplicate files really deleted.
+
+.TP
+.I "\-xbnn"
+Ignore bad files if the length of their name (excluding extension) is less than
+or equal to nn characters (for example, "-xb10" for 10 characters).
+
+.SS "HAVELIST" OPTIONS
+
+\fBScanSort\fR allows you to have collections that span multiple disks
+so you can, for example, burn part of a collection to CD without having
+to worry about having duplicate files lying around.
+
+.TP
+.I "\-hhave1.txt"
+Imports a "havelist" from the file "have1.txt".
+This list contains size, CRC and name of files you have elsewhere,
+which are then registered as "already there". If these files come
+up again, they are NOT copied to the target path
+and deleted if you use \fI-m\fR.
+
+
+.TP
+.I "\-Hb"
+.I "\-rHb"
+Will create a binary file have.bin which can be read with \fI-h\fR.
+Binary havelists are much faster than the text versions.
+
+.TP
+.I "\-hx"
+Ignore all havelists.
+
+
+.SS TRADING OPTIONS
+\fBScanSort\fR has a number of features to assist with the trading
+of images between collectors.
+
+.TP
+.I "\-t"
+Help for trading.
+
+.TP
+.I "\-dt"
+Set trading directory for files generated or copied (default: current).
+
+.TP
+.I "\-ds"
+Set source directory for files to copied (default: collection dir).
+You can give either the full path including the name of the collection
+or just the collection base path. The standard collection dir is still
+searched, so you can keep part of your collection on CD and part on hard disk.
+
+You can specify multiple source directories (each with \fI-ds\fR), but if
+you have spread your pictures over multiple CDs and you have only one drive,
+then you're out of luck :-[
+(You have to run Scansort once for each CD, which is no problem since
+the still missing pictures are written to need.txt).
+
+.TP
+.I "\-ta"
+Make list "ask.txt" of files to 'a'sk the trader for.
+
+.TP
+.I "\-tm"
+Make list "missing.txt" of files 'm'issing in both collections.
+Use this to ask a third party for the pictures you both need.
+
+.TP
+.I "\-to"
+Make list "offer.txt" of files you can 'o'ffer to the trader.
+
+.TP
+.I "\-tgNR"
+Copy NR files you can offer to the trading directory (e.g. \fI-tg20\fR).
+Pics you have and the other misses are chosen at random and copied
+so that you can easily move them to a zip-file and 'g'ive them to the trader.
+If you don't give a number, or if the number is more than you can offer,
+all files are copied.
+
+If the number is 500 or more it is interpreted as kilobytes, not pictures.
+
+A file "need.txt" is written with all the pictures you have not sent yet
+so you don't lose track and send pictures twice!  Use this file next time
+instead of the report.  If "need.txt" exists already it is saved to 
+"need.bak".
+
+If any pictures were given the original report is DELETED, so you don't
+get confused later which files were given. (The remaining filenames
+are written to "need.txt").
+
+.TP
+.I "\-tzNR"
+Works only together with \fI-tg\fR. The files you give are not copied but
+stored in Zipfiles using InfoZip ("zip" must be in your PATH!)
+The number tells how many pictures will go into each zip.
+If the number is 500 or more it means maximum size in kilobytes
+per zip.
+
+Files are zipped by alphabet, so the zipfiles may be below the size
+you specified.
+A logfile "zip.log" is written with the contents of every zipfile.
+If you run Scansort several times it always appends to this logfile,
+so you should delete it before you start.
+
+Compression is turned on by default. To turn it off, type
+SET ZIPCMD=-0
+(you can put this in your shell startup script if you like)
+
+.TP
+.I "\-tA, -tO, -tM, -tG"
+Same as \fI-ta\fR, \fI-to\fR, \fI-tm\fR, \fI-tg\fR, except that the collection name is appended
+to the name of the created text file. With \fI-tGz\fR, the zips are
+named "Collectionxx.zip" instead of "givexx.zip"
+
+
+.SS ADDITIONAL OPTIONS FOR USE WITH -tg
+
+.TP
+.I "\-tZname"
+Set the basename of the generated Zips to "name" instead of "give"
+(this is quite obsolete now; use -tGz instead).
+
+.TP
+.I "\-tF"
+Same, but don't check if files actually exist (makes a difference
+when you use multi-volume spanning).
+
+.TP
+.I "\-tf"
+Fake it (don't copy anything, useful to see how much would be copied).
+
+.TP
+.I "\-tr"
+Choose pictures at random (instead of from the beginning of the collection).
+
+.TP
+.I "\-tw"
+Trade 'w'hole collections. You need this if your partner wants a complete
+collection from you, and so you have no report. Use \fI-tw\fR and the name
+of the collection (e.g. Scanmaster) instead of the name of the report file.
+
+
+
+.SS CSV MAINTENANCE
+
+.TP
+.I "\-K"
+Delete ("'k'ill") all CSVs but the newest. A quick way to clean
+out old CSVs from your collection.
+
+
+.TP
+.I "\-Kr"
+Delete obsolete CSVs, rename current CSVs to the correct names.
+
+
+.SS MODEL COLLECTION OPTIONS
+\fbScanSort's\fR model collection options allow you to organise your
+images by model name rather than by series. \fbScanSort\fR will search
+through the descriptions in the CSVs, finding all images that fall
+within your search threshold.
+
+.TP
+.I "\-M"
+Give help on model collections.
+
+.TP
+.I "\-Ma"
+Create a Diashow list (AIS format) for use with ACDSee.
+
+.TP
+.I "\-MC"
+Create a CSV file with CRCs.
+
+.TP
+.I "\-Mc"
+Create a CSV file without CRCs (for a quick search through a collection).
+
+.TP
+.I "\-MmModel_Name"
+Specify the name of the model.
+
+For example, to search your collection for Pam with a threshold of 60%:
+.IP "" 10
+scansort all.txt -MmPamela_Anderson      
+
+.TP
+.I "\-MnNewName"
+Rename all pics if you don't like the sometimes strange names.
+
+.TP
+.I "\-Mp"             
+Copy pics that fit. A directory Model_Name (given with the \fI-Mm\fR option) is 
+created in the current dir (or in the directory given with \fI-dt\fR).
+
+
+
+.SS CSV MAINTENANCE MODIFIERS
+
+.TP
+.I "\-Ca"
+Create CSV for all files in the current directory (not just pictures).
+
+.TP
+.I "\-Cc"
+Recalculate ALL CRCs (not only those of new files).
+
+.TP
+.I "\-CE"
+Create E-CSVs.
+
+.TP
+.I "\-Ce"
+Only existing files go to the CSV (by default non-existing entries are kept).
+
+.TP
+.I "\-Cr"
+Recurse the source directory when creating CSVs.
+
+.TP
+.I "\-Cu"
+No entries are removed, no new entries added. Entries without CRC
+are updated if the pic exists.
+
+
+
+.SH CONFIGURATION FILE
+The configuration file tells \fBScanSort\fR which of your CSV-files it should use,
+where it should place verified images, etc.
+It is a text file with one collection name per line, like this:
+
+.IP "" 4
+# This is a comment
+.br
+# you can put commandline switches at 
+.br
+# the beginning of the config file.
+.br
+-ra             
+.br
+# read CSV-files from /home/mj/pictures/csv
+.br
+-dc/home/mj/pictures/csv
+.br
+# path for the collection
+.br
+-dp/home/mj/pictures/sorted
+.br
+
+.br
+# Collections start here
+.br
+Eroscan
+.br
+Skunkmaster
+.br
+Scanmaster
+.br
+Weatherby    weatherbyscp wbyscp
+.br
+.PP
+
+You can use both relative and absolute paths. You can also put several
+collections into the same path.
+
+You can also use different report names with \fI-r\fR:
+
+.IP "" 4
+# no reports for this one
+.br
+Wscan_SWA       -r              
+.br
+ZorroScans_SDC  -rZorros.txt
+.PP
+
+How does \fBScanSort\fR find the CSVs for the collections? It always examines ALL 
+of your CSVs (which have to be all in one directory). It removes the prefixes 
+"MTCM_" and
+"McBluna_", the suffix "_(FINAL)" and the number at the end. Then it takes what
+remains, removes all characters except letters and numbers (like -_'") and compares
+what remains against the collection names. If several CSVs match, the one with the highest
+count (number at the end) is taken. \fBScanSort\fR relies on this number to be correct!
+
+If the CSV is still named differently you can add several alternate names (like wbyscp
+in the example above).
+
+Now - if your collection is named "Light&Magic_HQ", which CSV won't be
+recognised?
+.br
+a) MTCM_Light_&_MagicHQ.csv
+.br
+b) Light_and_Magic_HQ_28.csv
+.br
+c) McBluna_lightmagichq_28.csv
+
+You got it, b). If you get non matching CSVs regularly you can beat them easily with
+alternate names:
+
+.IP "" 4
+Light&Magic_HQ  light-and-magic-hq
+.PP
+
+You may use upper-lower-casing, underscores, dashes, whatever for the 
+alternate names - all of these will be ignored.
+
+The config file can have any name and could be placed in the same directory
+as the CSV-files. Or, you can place it anywhere you like and specify the
+CSV-directory with \fI-dc\fR (commandline or configfile).
+You can create multiple config files of course.
+
+You can use wildcards for the collection name:
+
+.IP "" 4
+Harli*     # will select all Harli collections.
+.PP
+
+I do NOT suggest this however. When you use wildcards the actual collection
+names have to be determined according to the CSV names AGAIN:
+if Harli_SWA_40 gets replaced by Harli-SWA-42 it will create a new folder
+like before. So don't use Wildcards.
+
+The wildcard * will select ALL collections that were not selected before.
+So you can put all other collection scans somewhere using
+
+.IP "" 4
+*       -pMiscStuff
+.PP
+
+You can (and should) put switches at the beginning of your config file, but NOT
+after the first collection. However you can adjust the collection path and report path
+(\fI-dp\fR, \fI-dr\fR) between the collection names to spread large collections over several
+disks.
+
+
+.SH USAGE EXAMPLES
+A typical method of using scansort is to decode all the binaries from
+a Usenet newsgroup into a directory, for example ~/pictures/new. You can
+then run scansort as follows from within ~/pictures/new, assuming your
+configuration file is called ~/.scansortrc:
+
+.IP "" 4
+scansort -m -s* ~/.scansortrc .
+.PP
+
+This will move all your freshly decoded images to their proper locations,
+verifying that the images are correct.
+
+More to be added soon!
+
+.SH FILES
+.TP
+.I configfile
+\fBScanSort\fR configuration file. For more information on the use of
+a configuration file, see above.
+
+.TP
+.I scansort.log
+Logfile written to the current directory containing the results of the
+\fBScanSort\fR run.
+
+
+.SH BUGS
+There are no known bugs :-) 
+
+
+.SH LICENSE
+\fBScanSort\fR is released under the terms of the GNU General Public
+License, version 2. For more information, see the file COPYING
+contained within the archive.
+
+.SH WWW SITE
+The latest version of \fBScanSort\fR can always be found at
+http://www.geocities.com/SouthBeach/Pier/3193/
+
+.SH AUTHORS
+.IP "Stuart Redman <sturedman@hotmail.com>"
+Initial developer of the Win32 version, source maintainer and 
+responsible for the majority of development.
+.IP "Kees de Bruin <kdb@rtfm.demon.nl>"
+Responsible for much of the work for the UNIX port.
+.IP "Michael-John Turner <mj@energetic.uct.ac.za>"
+Debian GNU/Linux package maintainer and author of some documentation.
+
+.SH "SEE ALSO"
+\fBlynx\fP(1), \fBnn\fP(1), \fBrn\fP(1), \fBslrn\fP(1), \fBtin\fP(1), 
+\fBtrn\fP(1), \fBuudecode\fP(1), \fBuudeview\fP(1)
+
+Additional documentation and sample configuration files can be found in
+@@@@DOCDIR@@@@/scansort.txt.
+
+
+
+

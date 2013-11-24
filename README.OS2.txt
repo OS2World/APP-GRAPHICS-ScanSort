@@ -1,0 +1,14 @@
+ScanSort is a utility that can be used to identify, verify
+and  sort  images  based upon information contained in CSV
+files. It can also generate reports about  the  status  of
+image  collections  and  create archives of files to trade
+with others.
+
+I did not check all operations of the ScanSort completely, 
+but all looks as if it works :)
+
+The source codes can be compiled with IBM VisualAge 3.6.5.
+
+Ported to OS/2 by Dmitry A.Steklenev
+e-mail: glassman_ru@geocities.com
+    or: glass@cholod.ru

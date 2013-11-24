@@ -1,0 +1,43 @@
+# Scansort Makefile
+
+# change path here
+SCANSORT=scansort.exe
+
+CC  =icc
+COPT=-Q+ -O+ -W1
+
+!ifdef DEBUG
+COPT=-Ti+ $(COPT)
+!endif
+
+CSOURCES= memory.c \
+          string.c \
+          csv.c \
+          options.c \
+          trade.c \
+          report.c \
+          havelist.c \
+          file.c \
+          ext_funcs.c \
+          csv_model.c \
+          scan.c \
+          main.c \
+          fsplit.c \
+          platform_os2.c
+
+COBJECTS= $(CSOURCES:.c=.obj)
+
+$(SCANSORT): $(COBJECTS)
+	$(CC) $(COPT) $(COBJECTS) -Fe $@ 
+
+release:
+        $(CC) $(COPT) -Fo $(SCANSORT) /Fascansort.lst /FAsc all.c 
+
+.c.obj:   
+	$(CC) $(COPT) -c $< 
+
+clean:
+	del *.obj
+#	del $(SCANSORT)
+ 
+include makefile_win.dep

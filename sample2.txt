@@ -1,0 +1,37 @@
+# Scansort 1.8 sample config file
+
+# Paths for CSV files (several possible now)
+-dcc:\scan\csv
+-dcc:\scan\csv\asian
+-dcc:\scan\csv\photoshoot
+
+# this is for the high volume collectors who want to spread over several drives
+# You can of course use names instead of wildcards as well 
+
+# Path for reports
+-drd:\reports1
+-dpd:\scans
+a*
+b*
+c*
+d*
+e*
+f*
+g*
+-dpe:\scans
+h*
+i*
+j*
+k*
+l*
+m*
+n*
+
+# You can also split report paths if you like
+-drd:\reports2
+
+-dpf:\scans
+
+*	# the rest
+
+

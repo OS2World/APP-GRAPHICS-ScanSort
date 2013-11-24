@@ -1,0 +1,73 @@
+ScanSort 1.8
+
+Introduction
+------------
+This is the source code of Scansort. You should have got this zip included
+with the documentation, the applying GNU General Public License and the
+Windows Exe (which you can safely delete ;-) ). If not, please download it
+from http://www.geocities.com/SouthBeach/Pier/3193/ 
+
+Compiling
+---------
+Compiling ScanSort on a UNIX system should be fairly easy, assuming you 
+have gcc and GNU make installed. If not, install them first and then 
+come back here :) Seriously, ScanSort has not been tested with UNIX C
+compilers other than gcc (except the Sun SparcCompiler)
+- if it does work, please let us know.
+
+1 - Editing makefile.gcc to your satisfaction (the defaults result 
+    in ScanSort and its manpage being installed in /usr/local/bin - 
+    change these as necessary, for example if you don't have root 
+    access or your system uses /opt/ instead of /usr/local). Be sure
+    to make sure the ALIGN variable is set correctly (it should be 0
+    if compiling on an x86, 3 on CPUs that can't adress 32 Bit values on
+    odd addresses).
+
+2 - Compile by doing a "make -f makefile.gcc". If you're using BSD
+    make (for example on a FreeBSD system), make may moan about the
+    makefile, in which case use GNU make instead 
+    (eg "gmake -f makefile.gcc").
+
+3 - If the compilation proceeded successfully, you can do a 
+    "make install" to copy the ScanSort binary and manual page to their
+    final location. If there were problems with the compilation please
+    mail the author with the details of the problem (if you can fix the
+    problem and mail a diff it would be even better! :)
+
+
+Supported Platforms
+-------------------
+ScanSort has been successfully compiled on the following systems:
+
+- FreeBSD 3.0-RELEASE (ELF)
+   - Need to use GNU make
+   - Not fully tested, but appears to work fine
+
+- GNU/Linux (Debian 2.1, glibc 2.0)
+   - Compiles out the box
+   - Debian and Red Hat packages of ScanSort also available (or will
+     be available shortly)
+
+- Solaris 2.5
+   - compiles with both GCC and Sun SparcCompiler
+
+- Win32 with Visual C++ 5.0 (with makefile.win32)
+   - that's what it was developed on of course :-)
+
+- Different Platforms ? Send us feedback !
+
+Unsupported Platforms
+---------------------
+The following platforms are known not to work:
+
+- Win32 using CygWin (Windows NT 4.0, CygWin 20.1)
+   - Won't compile due to a missing glob.h
+
+
+Usage
+-----
+For more information on using ScanSort, consult the manpage (scansort(1))
+and the additional documentation contained in scansort.txt.
+
+
+

@@ -1,0 +1,109 @@
+#
+# ScanSort Makefile for GNU make
+#
+
+# this should be 0 for Intel, 7 for other CPUS (that can't adress words on odd adresses)
+ALIGN=0
+
+# Debugging enabled?
+DEBUG=1
+
+# C compiler and BSD-compatible install
+CC=gcc 
+COPT=-O2 -Wall
+INSTALL=install
+SED=sed
+
+# Sun SparcCompiler 
+#CC=cc
+#COPT=-fast -xCC -erroff
+
+# Change these as needed
+# Binaries, man page and docs will be installed here on a "make install"
+PREFIX=./inst
+#PREFIX=/usr/local
+BINDIR=$(PREFIX)/bin
+MANDIR=$(PREFIX)/man/man1
+DOCDIR=$(PREFIX)/doc/scansort
+
+# Libraries we need to link against
+LIBS=-lm
+
+#
+# ------------- Shouldn't have to change anything below here -------------
+#
+
+SCANSORT=scansort
+SCANSORT_MAN=scansort.1
+SCANSORT_MAN_INPUT=$(SCANSORT_MAN).in
+SCANSORT_DOC=ChangeLog COPYING README.UNIX ScanSort18.txt
+
+ifeq ($(DEBUG),1)
+	COPT+=-g
+endif
+
+
+CSOURCES= memory.c \
+	string.c \
+	csv.c \
+	options.c \
+	trade.c \
+	report.c \
+	havelist.c \
+	file.c \
+	ext_funcs.c \
+	csv_model.c \
+	scan.c \
+	main.c \
+	fsplit.c \
+	platform_unix.c 
+
+
+COBJECTS= $(CSOURCES:.c=.o)
+
+
+$(SCANSORT): $(COBJECTS)
+	$(CC) $(COPT) -o $@ $(COBJECTS) $(LIBS)
+
+
+platform_unix.o:
+	$(CC) $(COPT) -DALIGN=$(ALIGN) -c platform_unix.c
+	
+.c.o:   
+	$(CC) $(COPT) -c $< 
+
+
+
+clean:
+	-rm -f *.o
+	-rm -f $(SCANSORT)
+
+
+fix:
+	-mv copying COPYING
+	-mv changelog ChangeLog
+	-ln -sf makefile.gcc Makefile
+
+
+install: $(SCANSORT)
+	$(SED) "s%@@@@DOCDIR@@@@%$(DOCDIR)%" < $(SCANSORT_MAN_INPUT) > $(SCANSORT_MAN)
+	$(INSTALL) -d -m 755 $(BINDIR)
+	$(INSTALL) -d -m 755 $(MANDIR)
+	$(INSTALL) -d -m 755 $(DOCDIR)
+	$(INSTALL) -c -s -m 755 $(SCANSORT) $(BINDIR)/$(SCANSORT)
+	$(INSTALL) -c -m 644 $(SCANSORT_MAN) $(MANDIR)/$(SCANSORT_MAN)
+	-$(INSTALL) -c -m 644 $(SCANSORT_DOC) $(DOCDIR) > /dev/null 2>&1
+	@echo ""
+	@echo  $(SCANSORT) has been successfully installed in $(BINDIR)
+	@echo  and the documentation in $(DOCDIR).
+	@echo  Be sure to read the documentation and manual page.
+	@echo ""
+
+
+# Auto-create dependencies (only with gcc)
+dep:
+	for i in $(CSOURCES); do $(CC) $(COPT) -MM $$i;done > makefile.dep
+ 
+include makefile.dep
+
+

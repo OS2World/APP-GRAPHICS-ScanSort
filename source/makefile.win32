@@ -1,0 +1,41 @@
+# Scansort Makefile
+
+# change path here
+# SCANSORT=c:\utl\scansort.exe
+SCANSORT=scansort.exe
+
+COPT=/nologo /Ox /W3 /GF /G5 /ML
+CC=cl 
+
+CSOURCES= memory.c \
+          string.c \
+          csv.c \
+          options.c \
+          trade.c \
+          report.c \
+          havelist.c \
+          file.c \
+          ext_funcs.c \
+          csv_model.c \
+          scan.c \
+          main.c \
+          fsplit.c \
+          platform_win32.c
+
+COBJECTS= $(CSOURCES:.c=.obj)
+
+$(SCANSORT): $(COBJECTS)
+	$(CC) $(COPT) -o $@ $(COBJECTS)
+
+release:
+        $(CC) $(COPT) -o $(SCANSORT) /Fascansort.lst /FAsc all.c 
+
+.c.obj:   
+	$(CC) $(COPT) -c $< 
+
+clean:
+	del *.obj
+#	del $(SCANSORT)
+ 
+include makefile_win.dep
+

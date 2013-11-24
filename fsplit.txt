@@ -1,0 +1,52 @@
+--------------------------------------------------------------------------------
+  Splitting Gully Foyle's Cyberclub CSVs 
+--------------------------------------------------------------------------------
+
+One of the most important (and biggest) collections is the Cyberclub collection
+mirroring Playboy's Cyberclub server and featuring pics of every Playmate EVER,
+every centerfold and evey magazine cover. There is an excellent CSV maintained by my
+friend Gully Foyle, aka Bill. This CSV is close below 10000 pics (as you read
+this probably above), so he has split it by decades and years. There are also
+different naming schemes (stupid original and sensible new names). All these CSV
+did Gully maintain by hand, until I wrote a tool named FSPLIT for him to do this
+automatically. Fsplit was not Y2K compatible however, and I lost the source in a
+mishap some time ago so I made FSPLIT a scansort feature. If you want only FSPLIT
+you can easily use ScanSort simply for this without knowing beans about the other
+features (but maybe you get interested... :-) .
+
+Switches are
+
+scansort -F	give online help
+
+-Fd	split by decade
+-Fy     split by year
+-Fc     split by category (L-Port, L-Head, Cover, Big Centerfold, Chippy-Data
+-Fcd    split by category and L-Port by decade
+-Fo     create L-Port CSV with original names
+-Fod     " , split by decade
+
+You can also create just one big E-CSV. So you have ONE collection and STILL
+everything nicely sorted into subdirectories - the BEST way to use it imho.
+-Fe     create a E-CSV (\decade\year)
+-Fed    create a E-CSV (\decade)
+-Fey    create a E-CSV (\year)
+
+Scansort searches the current directory for files named Foyle_PCC_xxxx_*.csv and splits
+the one with the highest number it finds. If you want to give the name yourself use
+
+-FnCSV_NAME   define CSV to split (default: find automatically)
+
+
+If you have just completed the CC collection and burned it on CD you have the problem
+that it is ever ongoing, with new pics released and sometimes old pics replaced.
+You can create a small CSV out of the current CSV and a certain base CSV representing
+the state of your collection when you recorded it on CD. All portfolios that were added
+or changed since go into the new CSV:
+
+scansort -F  base_CSV
+
+You can combine the base csv option with any other fsplit option.
+
+Play around with the features, see what happens and decide for yourself how you want
+to collect the Cyberclub collection !
+

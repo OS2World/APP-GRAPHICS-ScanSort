@@ -1,0 +1,14 @@
+memory.o: memory.c scansort.h
+string.o: string.c scansort.h
+csv.o: csv.c scansort.h
+options.o: options.c scansort.h
+trade.o: trade.c scansort.h
+report.o: report.c scansort.h
+havelist.o: havelist.c scansort.h
+file.o: file.c scansort.h
+ext_funcs.o: ext_funcs.c scansort.h
+csv_model.o: csv_model.c scansort.h
+scan.o: scan.c scansort.h
+main.o: main.c scansort.h
+fsplit.o: fsplit.c scansort.h
+platform_unix.o: platform_unix.c scansort.h

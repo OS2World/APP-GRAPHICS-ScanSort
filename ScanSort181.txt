@@ -1,0 +1,1315 @@
+ScanSort 1.81 		27.08.99   		 sturedman@hotmail.com
+Homepage: 		http://www.geocities.com/SouthBeach/Pier/3193/
+
+
+--------------------------------------------------------------------------------
+  What is it ?
+--------------------------------------------------------------------------------
+
+Frustrated with the existing tools for scan collection managing I decided to write
+my own. The features are:
+
+EASY handling: command line driven, no GUI 
+automagically sort new files to where they belong, even if they are renamed (YEAH!)
+supports long filenames, Win32 only
+process ALL your collections in one run, FAST
+search directory trees for pics (e.g. complete CDs) 
+CRC-Checking, takes CSVs with or without CRCs
+generate report files (like MTCM, or widely configurable)
+span collections over multiple volumes
+automatically repair some corrupt files
+generate descript.ion files for ACDSee
+support for trading (match reports against collections,
+  copy files to send to a directory or pack them into zipfiles)
+create, update, verify, manage CSV files  
+create model based collections (search all pics for a specific girl)
+
+You need collection descriptions in MTCM-CSV-format, that is
+
+name,size,CRC32,optional description
+MALPPR01,219416,1431ab7b,Lisa Matthews
+
+You can get them e.g. at my homepage:
+http://www.geocities.com/SouthBeach/Pier/3193/
+
+
+--------------------------------------------------------------------------------
+  Why you need it
+--------------------------------------------------------------------------------
+
+The typical scan collector's "work day" goes like this:
+1) get new pictures (newsgroups, email trading, web, ftp ...)
+2) try to identify them:
+  a) look at pic 1 in the browser (search for small icons in the corners)
+       - oh, could be a AV-scan
+  b) look at the filename (damn - renamed to girl0317.jpg)
+  c) try to identify it by comparing the filesize with the values in the csv-file
+  d) rename it to the correct name (e.g. "AV_Rachel_Jean_Marteen_NU97_02.jpg")
+3) move it to your collection directory (if it exists you have to check if the
+     file you already have is good or bad)
+4) repeat 2-3 for all other pics
+5) run your favorite collection manager
+6) rename/erase files reported as bad or extra, run it again ...
+
+YOUR workday will be:
+1) get new pics (can't automize this), dumping EVERYTHING in one directory (e.g. "new")
+2) run scansort; watch it moving new scans to their target directories and deleting
+     files you already have
+3) (optionally) weed through the remainders (no more correct collection scans there)     
+
+Maybe you'll even find time to LOOK AT THE PICS !  :-)
+
+--------------------------------------------------------------------------------
+  Quick Start
+--------------------------------------------------------------------------------
+
+To get started take the following example:
+
+CSV-files are in c:\csv
+copy some scans and some other stuff to c:\new, rename some of them (all for testing)
+make directory c:\scans
+cd \scans    
+
+scansort -s* -dcc:\csv \new 
+
+ScanSort reads all CSVs in c:\csv.  
+Then it starts looking for jpg-files in \new. Each picture is compared
+against the database by size and CRC. If it matches an entry it is copied with the
+correct name to the target directory (which is created if it doesn't exist),
+but only if there is not already a file with the correct size.
+
+Try and see !
+
+SOME useful commandline switches (there are LOTS more):
+-m   move files, that means delete source files. Source files are also deleted
+       if the target already exists, so it can report more files deleted than moved.
+
+-ra  create report files for all collections with at least one file
+       with -ra no source paths need to be specified
+
+-Kr   clean up your CSVs, removing all those obsolete ones and renaming them to their
+      correct names
+
+Be careful - all switches are case sensitive, -m and -M have different meanings ! 
+
+To remove any junk from your collections just use your collection tree as source
+and an empty directory as target. Run ScanSort with -m . Then all good pics
+are moved to the new location and only files with wrong size/crc remain.
+
+Don't be afraid of those lots of switches - most are just for fine-tuning
+and not needed in the beginning.
+
+
+--------------------------------------------------------------------------------
+  Configuration File
+--------------------------------------------------------------------------------
+
+Usually you don't want to check your pics against all existing CSVs, only against
+those you actually collect. And you don't want to type always the same switches.
+So you need a config file.
+The configuration file tells ScanSort which of your CSV-files it should use.
+It is a text file with one collection name per line, like this:
+
+# This is a comment
+-ra		# you can put commandline switches at the beginning of the config file
+-dcc:\csv	# read CSV-files from c:\csv
+-dpc:\scans	# path for the collection
+
+Eroscan
+Skunkmaster
+Scanmaster
+Weatherby	weatherbyscp wbyscp
+
+Yeah, I have done it. I've CHANGED the format for 1.7. Don't stone me, guys (and gals ?)...
+The old format (using the CSV name) was a real nuisance with different prefixes
+(MTCM, McBluna, or nothing), slight spelling differences (WeatherbySCP, weatherby-SCP,
+weatherby_scp) or several versions of the CSV name (Felines, Echoscan-Felines).
+
+O.K., now you type in the name of the collections, just as you like it. I know this
+takes some time, but if a collection isn't worth adding its name to the config file,
+then it shouldn't be worth collecting.
+
+The name in the config file will be the name used for reports and for the target
+path. If you want to use a different one you can still do it with -p:
+
+Harli_SWA
+Harli_SWA_index		-pHarli_SWA\index
+L-Port			-pd:\L-Port
+
+You see, you can use both relative and absolute paths. You can also put several
+collections into the same path.
+
+You can also use different report names with -r:
+
+Wscan_SWA	-r		# no reports for this one
+ZorroScans_SDC 	-rZorros.txt
+
+
+How does Scansort find the CSVs for the collections ? It always examines ALL of your
+CSVs (which are usually all in one directory, but you can also use several CSV directories
+with several -dc switches). It removes the prefixes "MTCM_" and "McBluna_", the suffix
+"_(FINAL)", the text "scan" or "scans" and the number at the end. Then it takes what
+remains, removes all characters except letters and numbers (like -_'°) and compares
+what remains against the collection names. If several CSVs match the one with the highest
+count (number at the end) is taken. Scansort relies on this number to be correct !
+
+If the CSV is still named differently you can add several alternate names (like wbyscp
+above).
+
+Got it ? Now - if your collection is named "Light&Magic_HQ", which CSV won't be
+recognized ?
+a) MTCM_Light_&_MagicHQ.csv
+b) Light_and_Magic_HQ_28.csv
+c) McBluna_lightmagichq_28.csv
+
+You got it, b). If you get non matching CSVs regularly you can beat them easily with
+alternate names:
+
+Light&Magic_HQ	light-and-magic-hq
+
+You may use upper-lower-casing, underscores, dashes, whatever for the alternate names-
+all of these will be ignored.
+
+If you are really, really, 100% sure you WANT spaces in the names of your collections
+you can do this as well (although it sucks imho):
+
+"Light & Magic HQ"
+
+
+Prefixes and suffixes: the current trend is not to use prefixes at all any more. However
+you can specify your own prefixes and suffixes now:
+
+-pFoyle
+-PMTCM -PMcBluna -PHI -P_SNF
+
+The difference is that prefixes with -P are removed from the CSVs when using -K
+(kill/cleanup), while -p prefixes will be left alone (except when using -Kr). The prefixes 
+
+-pMTCM -pMcBluna -pfinished -pfinal -pongoing  (and their modifications)
+
+are built-in, you don't need to specify these.
+The switches are the same for prefixes and suffixes, use -P_SNF to remove the SNF from
+CC_BigCenterfold_Renamed_SnF_548.csv, but leave SnF_Open_318.csv alone.
+
+Be careful:
+1) -P will remove prefixes and suffixes from ALL your CSVs (not only from those you are using)
+2) -Kr will remove all prefixes and suffixes (even those given with -p) from the CSVs used
+       in your config file. This has caused some confusion.
+
+       
+The config file can have any name and could be placed in the same directory
+as the CSV-files. Or, you can place it anywhere you like and specify the
+CSV-directory with -dc (commandline or configfile).
+You can create multiple config files of course (but use only one per run).
+
+You can use wildcards for the collection name:
+
+Harli*		will select all Harli collections.
+
+I do NOT suggest this however. When you use wildcards the actual collection
+names have to be determined according to the CSV names AGAIN:
+if Harli_SWA_40 gets replaced by Harli-SWA_42 it will create a new folder
+like before (yuck). So don't use Wildcards.
+
+The wildcard * will select ALL collections that were not selected before.
+So you can put all other collection scans somewhere using
+
+*	-pMiscStuff
+
+at the end of the config file.
+
+If you have lots of collections and want a quick start you can run
+
+scansort -s -dcc:\csv -xu
+
+and then open the scansort.log in your text editor. There is a section in it
+with all recognized collection names which can be pasted into your config file.
+
+-xu lists all Collections for which there is a CSV but which aren't used in the
+config file in the logfile. So you can easily add new ones turning up to the
+config file.
+
+You can (and should) put switches at the beginning of your config file, but NOT
+after the first collection. However you can adjust the collection path and report path
+(-dp, -dr) between the collection names to spread large collections over several 
+disks.
+
+I have included 2 sample config files (sample1,2.txt) in the Zipfile.
+sample1 can be a good template for your use, sample2 is an example how
+"professionals" can easily spread their collection over several disks.
+
+You see, I've removed a few options that were there before because I found
+them rather unnecessary. If I get enough complaints (well - friendly suggestions ;-) )
+I may extend the format of the config file, but it will stay compatible from
+now on.
+
+--------------------------------------------------------------------------------
+  CSV-Files
+--------------------------------------------------------------------------------
+
+You need collection descriptions in MTCM-CSV-format, that is
+
+name,size,CRC32,optional description
+MALPPR01,219416,1431ab7b,Lisa Matthews
+
+You can get them e.g. on my homepage.
+
+Several people have asked for support for CSVs without CRCs
+("Checker-CSVs"), so I have added it. You can even mix
+entries with and without CRCs in one file !
+I still suggest you check if you can't find a CSV WITH CRC.
+
+Of course, files without CRC cannot be detected if they are renamed
+(except upper/lowercase). There are lots of same-sized files in
+the collection database.
+
+Even CSVs with entries with zero length are now accepted
+(only the correct entries), though you should forget that junk.
+
+--------------------------------------------------------------------------------
+  E-CSV-Files (extended CSV)
+--------------------------------------------------------------------------------
+
+There are a bunch of CSVs around with a new format:
+img0018.jpg,129908,b8f1da32,\Denna\,
+img0019.jpg,93470,d688bd6c,\Denna\,
+img0020.jpg,147257,f4dbf161,\Denna\,
+img0001.jpg,138347,51341f96,\Hellen
+img0002.jpg,160207,477c0c43,\Hellen\,
+img0001.jpg,258827,7504ede5,\Ingrid\,
+img0002.jpg,246678,29a214a6,\Ingrid\,
+
+You see, the comment is replaced by a sub path, and (often) many pics carry the
+same name. Now many people collect these pics, and so I decided to support it
+(instead of just raving about that nonsense :-[ ). This means, the pics go
+in a path named like the collection (as always) and there into a subfolder as
+specified. Reports work also.
+
+There are some limitations though:
+- trading only possible as zips
+- E-CSVs can be created with -CE, but not updated
+- extra comments AFTER the path are ignored
+- if you don't have the correct CSV those img???? pics are treated as bad
+  (because there are always pics with same name and different size).
+  I suggest you use -B to leave bad file alone (NOT -b !!!)
+  There's also a new switch -xb8 to leave all bad pics named with 8 or less
+  characters alone made especially for this problem.
+
+--------------------------------------------------------------------------------
+  Running ScanSort
+--------------------------------------------------------------------------------
+
+I suggest you put ScanSort somewhere in your path (e.g. into windows\command).
+Now open a Dos-Box and type
+
+scansort
+
+- it will show the command line syntax and all the switches it knows. Don't worry,
+you won't need many of them for daily work ...
+
+Besides the switches you have to supply the name and path of the config file (which should
+be located in the same directory as your CSV-files) and the SOURCE PATHS (the directories
+you want ScanSort to search through for new pics).
+The TARGET PATH (where the pics are written to) is the actual directory,
+so you have to cd to the place where you want them first.
+
+
+--------------------------------------------------------------------------------
+  Examples
+--------------------------------------------------------------------------------
+
+(You don't want to read on and start right away ? - O.K.)
+
+Places for files (replace them with your own):
+
+CSV-Files: 		c:\csv
+Config file:		c:\csv\all.txt
+ (You should take your time to setup this using sample1.txt as template. Or you
+  can create a file with just a * in it.)
+Your existing Scans:	d:\old		(in various subdirectories)
+Incoming pictures in:   c:\new
+
+Target directory:	d:\scans	(empty at the beginning)
+
+All examples assume that you have cd'd to the target directory or set the target path
+using -dp in the config file. 
+
+
+First-time cleanup of your collection:
+
+   scansort -m c:\csv\all.txt \old
+
+   This moves all files from your old collections to the new place, sorting everything
+   to the correct places and renaming the files to the correct names from the CSV-files.
+   Only files with correct size and CRC are moved, everything else remains in the old
+   place.
+
+Moving incoming files to their places:   
+
+   scansort -m c:\csv\all.txt c:\new
+
+   Files you don't have are moved, those you already have are deleted. Source files
+   are only deleted if the copy was succesful of course (someone asked me this).
+   Unknown files stay where they are.
+
+Create MTCM/Colver-style reports:   
+
+   scansort -rM c:\csv\all.txt
+
+   Reports are written to the target directory (if not specified else in the
+   config file). Only collections with at least 1 file are reported.
+   You can specify a report directory with -drDIRNAME 
+
+Create Scansort-style reports:   
+
+   scansort -ra c:\csv\all.txt
+
+Make a list "have.txt" of all files currently in your collection   
+
+   scansort -rH c:\csv\all.txt       (-rHv to add the comments)
+
+Import this list if you have moved out some of your pics (e.g. on CD)
+
+   scansort -hhave.txt c:\csv\all.txt [other options]
+
+Match your files against someone else's report (creates ask.txt and offer.txt)
+
+   scansort c:\csv\all.txt -tao report.txt
+
+
+(No reason to STOP reading now. You know: If all else fails, read the doku !)
+
+
+--------------------------------------------------------------------------------
+  Commandline switches
+--------------------------------------------------------------------------------
+
+Commandline switches start with '-' or '/'. You can't join multiple switches
+after one switch character, and switches must be seperated by blanks:
+
+-mv	Wrong (v is ignored)
+-m-v	Wrong (v is ignored)
+-m -v	Correct
+
+(Yeah, that's not standard, I know. It's because the switch parsing is completely
+ hand-made. Another thing that sucks is that -dc c:\csv causes an error - you
+ have to use -dcc:\csv . But people have got used to it, and nobody has complained
+ ever, so I've always been after more pressing features. :-) )
+
+Be careful - all switches are case sensitive, -m and -M have different meanings ! 
+
+  -m     move files (erase source files)
+         All files you already have in your collection are deleted from the
+         source path. (Those you don't have are copied and then deleted -
+          if the copying was succesful.)
+
+  -u     no uppercase for DOS-Filenames
+         By default, filenames with 8 or less characters (DOS-Names) are
+         converted to uppercase. This switch turns this feature off.
+         
+  -_     Spaces in picture names suck and are thus converted to '_' by default.
+	 Same story with umlauts and special characters - Kâtâ becomes Kata.
+  	 You can turn this feature off with this switch.
+         
+  -v     more messages (rather obsolete meanwhile...)
+         
+  -a     check all files (regardless of extension)
+         If you got your pics renamed to pic.001, pic.002 or something alike.
+	 Not needed any more for sorting collections with different file types
+	 
+  -l     don't write logfile
+         By default, a lot of info is written to "scansort.log" in the current path.
+
+  -sNAME process single collection NAME (no config file).  -s* means "all collections"
+         If you use a config file with this option (must be before the -s switch in the
+         command line) just the -s - collections are processed (for speed-up):
+         scansort config.txt -sScanmaster -sSkunkmaster
+         
+  -exyz  set file extension to xyz (instead of jpg)
+         So you can sort collections of wavelet or fractal compressed pics in the future ! :)
+
+  -b     always delete bad files  (see below)
+
+  -K     kill duplicate CSV-files (see below)
+
+  -T     touch pics (set to current date/time) when moving into collection
+  
+  -r     give help on reports (to keep help on one screen...)
+
+  -t     give help on trading
+
+  -M     give help on model collections
+
+
+--------------------------------------------------------------------------------
+  Choosing directories
+--------------------------------------------------------------------------------
+
+By default, ScanSort searches the CSV-files in the same directory as the
+config file and everything else in the current directory (where you have
+"cd"d to before running it. BTW: "directory" means the same as "path" or "folder").
+Now you can override all of these:
+
+  -dcDIR set directory for CSV-files    to DIR (instead of path of config file)
+         You can use several -dc switches if you want to sort your CSVs into
+         several directories.
+
+  -dCDIR this directory is searched for CSVs just like those with -dc, but after the run
+         all CSVs actually used are moved to the -dC directory (only if reports were
+         generated). If there are two -dC dirs the first gets the CSVs for incomplete,
+         the second the CSVs for complete collections. If the completion status changes
+         the CSV is moved back and forth as requested. (However if a CSV is not used
+         any more it stays in the -DC path and is not moved away.)
+
+  -drDIR set directory for report files to DIR (instead of current path)
+         You can override this by specifying an absolute path for the report
+         in the config file.
+
+  -dpDIR set collection directory to DIR (instead of current path)
+         You can override this by specifying an absolute path for the target
+         in the config file.
+         The pics are copied to Collectiondir\Collectionname
+
+  -dbDIR set directory where bad pictures go to (instead of "BadPictures")
+  
+  (some more for trading, see below)
+
+Warning: don't put a space between -dc and the name ! (You get a sensible error message now.)
+Correct: -drc:\report		Wrong: -dr c:\report
+
+-d switches now support the ~ char which stands for your home directory under unix.
+   You can use this under Windows as well if you type like   set HOME=d:\scans 
+   before running Scansort. Then -dc~\csv will set your CSV dir to d:\scans\csv .
+
+--------------------------------------------------------------------------------
+  Reports
+--------------------------------------------------------------------------------
+
+There are two styles of reports:
+1) -rM		Mastertech-Style  (Missing  name length description)
+2) -rhmiesa	ScanSort-Style: separate sections for files you
+		'h'ave, 'm'iss, 'i'ncorrect and 'e'xtra files and the 's'ummary
+		- or 'a'll of the above
+You cannot use 1) and 2) together.
+
+Modifiers:
+  -rb	brief (no descriptions)
+  -rc	CRC-check all files (SSLLOOWW). Use this only if you think your harddisk could
+        be corrupt, or to verify a new burnt CD. Remember: ALL pics were CRC-checked when
+        they were added to the collection !
+  -rf   freshen: only create a report for a collection for which new pics were added,
+        or for which the report was missing or older than the CSV.
+        Needed to keep a web page up to date (to see which reports have changed).
+  -rE   No empty reports: best used with -rmies (everything except the files you have).
+        Then there won't be reports for complete collections showing just the summary.
+  -rR   recurse collection for report generation, like in versions before 1.61
+        This is not recommended and only needed if pics were manually moved to subfolders.
+  -rA   report all collections in the config file, even the inactive ones (those of which
+          you have no pics at all). This also decides if inactive collections go to the summary.
+  -rn   add numbers of have/all to report names (like CSA_239-240.txt )      
+  -rr   Don't generate reports. Now, what could this be good for ?
+        Well, I'm using -rmiesbofE in my config file, but don't want to generate reports
+        in every run. So I can
+        a) use -rr in the command line to suppress them for one run
+        b) use -rr in the config file to suppress them always and -rr in the command line
+           to turn them back on. (-rH and -rT will turn them on as well)
+  -rI   some comment  - add "some comment" to every report. This switch can only be used
+        in the config file.
+
+
+Other forms of report :
+  -rd   create "descript.ion" files for use with ACDSee (the BEST viewer available !)
+  -rD   create descript.ion as hidden files
+        descript.ion is only created if there ARE descriptions in the CSV !
+  -rH   create "have.txt" for multi-volume-spanning (see below)
+  -rS   print summary for every collection in table form on the screen,
+          not only into the logfile
+  -ro   output the collection summary to the file "summary.txt" in the report path.
+          (complete collections first, then the rest).
+  -rT   create HTML-table for my homepage. Don't know if anybody else can use this.  :-)
+        It also creates the CSV zips I supply automatically. -rTv ("vacation") omits
+        the links for the text files to offer only the CSVs.
+        This option searches for a file "trade_tp.html" in the report directory and creates
+        a file "trade.html" out of it. It compares line by line:
+
+        CHANGE-DATE		insert current date/time
+        COMPLETE-TABLE		insert table of complete collections
+        INCOMPLETE-TABLE	insert table of incomplete collections (you guessed that ;-) )
+
+        I've include a trade_tp.html for you (based on my trade page). After editing it with
+        a HTML-Editor (like Netscape Composer) open it in a text editor and make sure that
+        the tags from above are still each in a line for themselves as they were before !
+	-rT also creates a file requests.zip with all your reports and your missing.csv.
+  -rx   export all missing pics into "missing.csv" to get a quick overview
+        (only missing pics from active collections, thats collections you have at least
+         one pic of)
+  -rX   export missings into CSVs (one per collection). Yeah, you've talked me into
+        this. Now I just hope everybody will be able to tell the difference between
+        "real" CSVs and requests on the newsgroups... :-|
+  -rN   creates a bunch of filters for Forte Newsagent, both with and without filesizes
+        as suggested by Eric. -dNpath sets the directory where these filters go to.
+        Try and see yourself. I don't use Forte Newsagent myself, but was told this
+        works great.
+        
+  
+You can group all report switches (MhiesabcdDHvSoT) after only one -r.
+
+Hint: ScanSort is a sorter, not just a checker. I suggest you use ONLY ScanSort
+      to add new files to your collection. Then you will NEVER have any
+      bad or extra files there !
+      Because of this, there is usually no need to CRC-check pics for reports.
+      I only suggest it if you suspect your filesystem to be screwed up...
+      
+      You can put bad sized files manually into your collection directory,
+      they will be replaced when the correct file comes up,
+      but you really shouldn't if you do any trading.
+      
+      NEVER put files with correct size/wrong CRC there because they won't be
+      recognized as bad and so won't be replaced when you get the correct file !
+      (if you want to keep them change the size: copy /b bad.jpg + small.txt bad1.jpg )
+
+
+--------------------------------------------------------------------------------
+  Sorting other pics than JPGs
+--------------------------------------------------------------------------------
+
+You COULD switch Scansort's default extension from jpg to gif with
+-egif
+but what you usually need is support for collections with images of multiple
+types (jpg and gif, mpg, avi). This works. Scansort checks all filetypes which
+appear in any of the used CSVs (yeah, -a is not needed any more for this).
+
+Keep in mind that Scansort is designed and tested for sorting PICS and not
+100-MB-movies. Every file checked is kept in memory during the process, so
+put enough RAM into your PC for sorting big movies. (BabeTV_SWA works fine
+on my computer with 32MB RAM).
+
+
+--------------------------------------------------------------------------------
+  The Wastebasket
+--------------------------------------------------------------------------------
+
+A nasty bug in version 1.62 could lead to deletion of pics under certain
+circumstances. To get rid of such problems once and for all, I changed the
+behaviour of file deletion:
+Obsolete files are now not deleted, but moved to a certain "Wastebasket"
+directory. So if a file should get erroneously deleted, you can alway find
+it there afterwards and restore it. The only exception to this rule are
+pics that were MOVED to the collection (that means: succesfully copied
+to a new place), these don't get a copy in the waste since they are still there.
+
+The Wastebasket folder is "ScanSortWaste" in the current directory;
+you change this with
+
+-dwd:\waste	(to d:\waste)
+-w		will turn off the feature and have the files really deleted again.
+
+I'm quite sure you won't need this feature in the future, but better save than sorry...
+Of course you shouldn't forget to empty this folder every now and then.
+Remember, pics there are probably already in your collection, or bad pics with good
+ones existing.
+
+If Scansort tries to move a file to the wastebasket (or to the Bad Folder, see below)
+and there is already a pic of that name there the new pic gets renamed.
+
+If anybody knows how to delete files into the Windows Wastebasket please send me
+a source code example and I'll be glad to add this feature. I found nothing about
+it in the doku.
+
+
+--------------------------------------------------------------------------------
+  Handling of bad files
+--------------------------------------------------------------------------------
+
+Bad files are files with a valid name, but wrong size or CRC.
+ScanSort puts these into the directory "BadPictures" unless there
+is a good version in the collection. If you use -m they are deleted
+afterwards. 
+
+-b   If you use the -b option bad files are never copied and always deleted
+     (but first checked if they can be repaired, see below).
+
+-b40 only copy bad files if their size is at least 40% of the original size,
+     otherwise delete (with -m). This was the default behaviour until version 1.61,
+     and was changed after someone lost a bunch of files with stupid names
+     (there are lots of collections with pics named "img0001", "img0002", ...).
+     Use -b57 for 57%, or whatever.
+
+-dbDIR   specify an other target directory DIR for bad files (WORKS NOW)
+
+-B   If you use the option -B bad files are left alone completely (but still
+     checked if they could be repaired)
+
+
+--------------------------------------------------------------------------------
+  Handling of extra files
+--------------------------------------------------------------------------------
+
+If you follow my suggestions and use ONLY Scansort to copy pics into your
+collection there should never be any "extra files" (files not mentioned in the
+CSV) there. Well, after downloading new CSVs those extras often appear out of
+thin air. The reason is usually that someone fixed a bug or typo in the CSV,
+or even reorganized it (moved some pics to a new CSV).
+Since the computer should handle at least simple problems automatically, Scansort
+tries its identification function on every extra file it finds when generating
+a report (only when you use the move option -m). Usually the pic is identified
+as a (slightly differently named) member of the current collection and renamed.
+This works as well if the pics were moved to a new CSV (if the new CSV is included
+in your config file).
+If you use the switch -E extra files are always removed, even if they couldn't
+be identified. You shouldn't use this by default !
+
+Another nuisance fixed: if you change your CSV suplier you often find that the
+pics are named same, but with different casing (all lowercase/first uppercase).
+This looks bad in my opinion, so pics with correct name but different casing
+are now renamed according to the CSV automatically.
+
+
+--------------------------------------------------------------------------------
+  Multi-Volume spanning of collections
+--------------------------------------------------------------------------------
+
+When you collect succesfully, you will soon run out of disk space  :-(
+and start moving files to CD-Rs or Zipdisks. No problem, ScanSort supports
+spanned collections !
+
+  -hhave1.txt   imports a "havelist" from the file "have1.txt".
+  		This list contains size, CRC and name of files you have elsewhere,
+  		which are then registered as "already there". If these files come
+  		up again, they are NOT copied to the target path
+  		and deleted if you use -m.
+
+There are two ways of creating a havelist (which is always named "have.txt"):
+
+1) scansort c:\csv\all.txt -H d:\pics	(-Hv to add comments to havelist)
+
+   This searches d:\pics (recursive) for pics from the collections in all.txt.
+   The same search algorithm is used as when checking new pics: all pics are
+   checked for size and CRC, regardless of their name and path.
+   This takes a long time, but allows creation of havelists from CDs with
+   incorrect named pictures or picture paths. Also you only have to do this ONCE.
+
+2) scansort c:\csv\all.txt -rH (-rHv to add comments to havelist)
+
+   This reports only files from you correct sorted current collection. It only
+   checks filenames and filesizes and is really FAST.
+
+You can easily combine (or convert to verbose) havelists by importing them
+with -h:
+
+   scansort c:\csv\all.txt -hcd1.txt -hcd2.txt -rHv -dpd:\EMPTY_DIRECTORY
+
+I suggest you create one havelist for each collection volume you have.
+(you have to rename them because the created file is always named "have.txt")
+
+Like all options the -h option can be placed at the beginning of your config file !   
+
+In Version 1.50 I changed the format of the havelist to standard CSV format.
+Old havelists are still accepted. (However this caused Scansort versions before
+1.8 to ignore all pics in text havelists which were named only in digits,
+like 19990703.jpg. :-( Binary havelists were always fine, and the bug is fixed now.)
+If you want to import the havelist into another application like a database
+you can user -rHs or -rHsv to 's'uppress the collection comments.
+Then the collection name is added for each line between CRC and comment, and formatting
+spaces are removed.
+The comments in the havelist start with #, so that pics starting with that character
+are ignored. This concerns the #SWA_1st_Anniversary collection only for all I know.
+Make a binary havelist for this one. (Now that I think of it I could have removed the
+stupid char from the filenames. Oh well, you can't swat all flies... ;-) )
+
+If you create a summary file (-ro) there will be a list for each collection
+where the pics are located. HD means in the collection on your hard drive,
+otherwise the names of the have files are shown. So I suggest you rename
+the have files to cd1.txt, cd2.txt, zip1.txt and so on.
+
+If you have several CDs burned importing all the have files can get a bit time
+consuming. Therefor I created a new binary havelist format:
+
+-Hb
+-rHb	will create a binary file have.bin which can be read with -h much faster.
+
+I suggest you create a standard text havelist for each CD (-rH or -rHv),
+and a binary one for faster import as well.
+You can also convert a text list to binary :
+
+   scansort config.txt -hcd1.txt -hb
+
+-hb 	will convert ALL text havelists read into binary havelists (cd1.txt becomes cd1.bin).
+The text havelists are kept of course, but if a binary havelist with the same name exists
+already it is overwritten. It doesn't matter what CSVs are used for the run (but at least
+one is necessary).
+
+The pics in the havelist are recognized by their size and CRC, they will stay
+"have" even when they get renamed in the CSV later. Remember that you may have a
+pic under the old name on your CD if you have backed up a partial collection.
+
+If you want to create a new havelist you should usually tell Scansort to ignore
+all other havelists in the config file (or the new one will include all the other
+ones together with the stuff on the harddisk). You can do this with the switch
+
+-hx	ignore all havelists
+
+
+
+--------------------------------------------------------------------------------
+  Trading
+--------------------------------------------------------------------------------
+
+"Trading" means contacting other Scancollectors and exchanging pics with them.
+There are many trade pages on the Web (e.g. mine :) ) where people list their
+collections in the form of report files. You download one of these reports,
+send some of the missing pics to the trader and ask for some pics YOU miss
+that HE has.
+
+(Many people on IRC state the opinion that rather than trading everybody
+ should give away everything for free. Well, this may be o.k. for 10 fresh 
+ released pics, but find somebody who will send you 800 without getting
+ anything back...
+ Anyway, you can use the features described below of course for "giving"
+ or "asking" instead of "trading" just as well. )
+
+Now imagine you trading Scanmasters with somebody. You each have 600 of the
+1000 pics in the collection. Now you want to send 100 pics YOU have that
+HE hasn't and choose 100 YOU miss that HE has. If you ever have done this you 
+know that this is an utter pita... This is just dumb work and an ideal job
+for a dumb, fast computer !
+
+You need to download the trader's report and save it to a file. Now the fun
+begins (for me), because there are as many different report styles as there
+are collection checkers (MANY)... I have tried to beat most of them, but
+if you stumble upon a report ScanSort doesn't accept mail it to me so I can
+try to support it.
+
+There are three main styles of reports:
+1) Mastertech (all files alphabetically with 'valid' or 'missing' as first word)
+2) ScanSort   (different sections for having or missing files)
+3) simple     (just the names of the missing files)
+
+Also some guys (like me) only upload reports of files they MISS. If you
+ever downloaded a 1000-line-report over a slow connection to find out which
+two pics the dude was missing you know why...
+
+Switches for trading:
+
+-t	help for trading
+
+-dt	set trading directory for files generated or copied (default: current)
+
+-ds	set source directory for files to copied (default: collection dir)
+        (if you have this collection e.g. on CD-ROM)
+        You can give either the full path including the name of the collection
+        or just the collection base path. The standard collection dir is still
+        searched, so you can keep part of your collection on CD and part on hard disk.
+
+        You can specify multiple source directories (each with -ds), but if
+        you have spread your pics over multiple CDs and you have only one drive,
+        then you're out of luck :-[
+        (You have to run Scansort once for each CD, which is no problem since
+        the still missing pics are written to need.txt .)
+
+-ta	make list "ask.txt" of files to 'a'sk the trader for
+
+-to	make list "offer.txt" of files you can 'o'ffer to the trader
+
+-tm	make list "missing.txt" of files 'm'issing in both collections.
+        Use this to ask a third party for the pics you both need.
+
+-tgNR   copy NR files you can offer to the trading directory (e.g. -tg20)
+        Pics you have and the other misses are chosen at random and copied
+        so that you can easily move them to a zip-file and 'g'ive them to the trader. 
+        If you don't give a number, or if the number is more than you can offer,
+        all files are copied.
+
+        If the number is 500 or more it is interpreted as kilobytes, not pics.
+
+        A file need.txt is written with all the pictures you have not sent yet
+        so you don't lose tracks and send pics twice ! Use this file next time
+        instead of the report.
+        If need.txt exists already it is saved to need.bak.
+
+        If any pics were given the original report is DELETED, so you don't
+        get confused later which files were given. (The remaining filenames
+        are written to need.txt.)
+
+-tzNR   works only together with -tg. The files you give are not copied but
+        stored in Zipfiles using InfoZip (zip.exe must be in your path !)
+        The number tells how many pics will go into each zip.
+        If the number is 500 or more it means maximum size in kilobytes
+        per zip.
+        Files are zipped by alphabet, so the zipfiles may be below the size
+        you specified.
+        A logfile "zip.log" is written with the contents of every zipfile.
+        If you run Scansort several times it always appends to this logfile,
+        so you should delete it before you start.
+
+        Why use InfoZip ("zip.exe") ?
+	InfoZip is a Unix Zip program which was ported to Win32.
+	It can be called by commandline (other than WinZip) and supports
+	long Filenames (other than PKzip).
+	You can download it from my homepage.
+
+	Compression is turned on by default. To turn it of, type
+	SET ZIPCMD=-0
+	(you can put this in your autoexec.bat if you like)
+
+-tA, -tO, -tM, -tG
+        Same as -ta, -to, -tm, -tg, except that the collection name is appended
+        to the name of the created text file. With -tGz, the zips are
+        named "Collectionxx.zip" instead of "givexx.zip"
+
+Options for use together with -tg
+
+-tZname	Set the basename of the generated Zips to "name" instead of "give"
+        (this is quite obsolete now; use -tGz instead)
+
+-tr     choose pics at random (instead of from the beginning of the collection)
+
+-tf     fake it (don't copy anything, useful to see how much would be copied)
+
+-tF     same, but don't check if files actually exist (makes a difference
+        when you use multi-volume spanning)
+
+-tw     trade 'w'hole collections. You need this if your partner wants a complete
+        collection from you, and so you have no report. Use -tw and the name
+        of the collection (e.g. Scanmaster) instead of the name of the report file.
+
+The name of the reportfile from which the informations are taken replaces the
+source directory in the commandline. You can't sort in any pics in trade mode.
+
+If you want to ask from a different collection than offer, it takes two reports
+and two runs of ScanSort.
+
+In versions before 1.8 only reports which include the filelength for each pic after the
+name were supported. Now it can handle simple reports (just the missing names) as well.
+Of course Scansort can determine the collection then only if the first name is unique.
+If you have a report which is not supported mail it to me and I'll see what I can do.
+
+You can speed up trading much if you know the collection(s) used:
+scansort config.txt -sScanmaster -sSkunkmaster need*.txt -tGz
+will only load the two CSVs for Scanmster and Skunkmaster and leave the other 1000 alone.
+
+I got several mails from people having problems with trading so here are examples.
+Still it is an "advanced" feature so you should first get a bit familiar with
+ScanSort.
+Don't misunderstand the concept - ScanSort doesn't compare TWO reports against
+each other but ONE report against your collection. So you have to specify a
+configfile and cd to your collectiondir (or give it with -dpDIR), like always.
+
+Example:
+file trade.txt (in d:\trade)
+
+#
+# CSV dir
+-dcd:\gra\csv
+# Collection dir 
+-dpd:\gra\scan
+# Collections currently traded 
+MTCM_Rhabdo_234.csv
+MTCM_Scanbyte_421.csv
+McBluna_Simulator_730.csv
+McBluna_Riptorn_168.csv
+# end of file
+
+You want to complete your Rhabdos, your friend "John" his Scanbytes.
+John doesn't use ScanSort, so you have to do all the work.
+Cd to d:\trade where you have stored the reports rhabdo.txt and scanbyte.txt
+which John sent you.
+
+1)
+scansort trade.txt rhabdo.txt -ta
+
+creates a file ask.txt with all the Rhabdos John has and you need.
+You can send this to John so he can easily select the files for you.
+
+Watch out for the messages ! If the report is ScanSort-style with the header
+removed Scansort could become confused if the files are "have" or "miss".
+Then you should put the keywords "have" or "miss" into the report
+(in the line before the first picture)
+
+2)
+scansort trade.txt scanbyte.txt -to
+
+creates a file offer.txt with all the Scanbytes you have and John needs.
+
+3) 
+scansort trade.txt scanbyte.txt -tg20
+-  copies the first 20 Scanbytes that John needs to the current dir.
+
+scansort trade.txt need.txt -trg30z5
+-  copies 30 MORE random Scanbytes that John needs to the current dir in Zipfiles
+   with 5 pics each (zip.exe must be in path)
+   (need.txt was generated in the last run and has all files John needs
+    except the 20 you already copied)
+
+scansort trade.txt scanbyte.txt -tgz1000Zscb
+-  copies all your Scanbytes that John needs to the current dir in Zipfiles with
+   less than 1000k each. Files are named: scb01.zip, scb02.zip, ...
+
+If you have moved your Scanbytes on a CD (see multi-volume-spanning):
+
+scansort trade.txt scanbyte.txt -hhave.txt -dse:\Scanbyte -tg500z1000
+( you may want to put the -h and the -ds options into the config file trade.txt)
+
+I suggest that you arrange with John how much you want to trade in the next
+few days. Then prepare all the Zipfiles needed in advance and send them in
+the quantity you decided. When you have run out of them you should send each other
+new reports to resync.
+
+If John uses ScanSort too you can just send him a plain report instead of the ask.txt.
+
+
+--------------------------------------------------------------------------------
+  Matching whole collections
+--------------------------------------------------------------------------------
+
+O.K., you got an eager friend and a fast connection, so you want to go for the
+BIG thing - give him ALL files he needs.
+
+1) Ask him to send you all his reports, as individual files (in a zip file probably)
+2) scansort all.txt -tg *.txt
+
+This is essentially the same as single collection trading repeated for each
+report file *.txt. There are a few differences:
+
+- verbose names are used always for text files or zipfiles
+- if you don't zip the pics they go to individual folders for each collection
+
+The number of pics / kilobytes you give is honored now. So you can easily
+prepare 40 MB for transfer:
+
+scansort all.txt -tg40000 *.txt
+
+Scansort runs through the reportfiles. If all pics from one report are copied it is
+deleted, if not it is replaced by need_NAME.txt. If you have spread the collection
+over multiple CDs you have to run ScanSort once for each CD.
+
+
+--------------------------------------------------------------------------------
+  Automatic repair of corrupt files
+--------------------------------------------------------------------------------
+
+Don't expect too much here !
+I have stumbled upon several pics with correct size but wrong CRC. When I examined
+them I found out that just the last byte was set to zero. Now, the correct ending
+of a JPG is always 0xff 0xd9, so if a file has wrong CRC and the ending is wrong
+ScanSort replaces the ending and checks the CRC again.
+There are also sometimes files with are a bit longer than they should be
+because they got some extra bytes appended at the ending by buggy mail programs.
+If they still have the correct name they are identified though and copied
+to your collection (without the extra bytes of course).
+This works only for some few files. Most corrupt files have data missing and can't be
+repaired.
+
+
+--------------------------------------------------------------------------------
+  Kill duplicate CSV-files / Verify CSV-files
+--------------------------------------------------------------------------------
+
+The guys who create the CSV-files usually put a number behind the name which is
+the number of entries in the file. So if you get a report (which shows the CSV
+name) you can see which version the guy used.
+The downside of this is that when you copy new versions to your CSV directory
+the old ones aren't overwritten, so things will get messy soon.
+I have added an option to clean up the old files:
+
+-K 		delete ("'k'ill") all CSVs but the newest
+
+-K only deletes duplicate CSVs if the one with more pics is also longer in size.
+The reason is that sometimes somebody gets the brilliant idea to remove all comments
+for a new release, and I rather keep an older version than a newer one without comments.
+The longer CSVs with less entries are moved to the folder old_comment in the CSV
+directory.
+-K will sort out ALL CSVs, not just those in your config file. If you don't collect,
+say, RamoNET-SRcomix you still don't want dozens of outdated versions of it clutter up
+your HD.
+
+You can also rename all CSVs used to the actual collection names from the config file:
+
+-Kr		delete obsolete CSVs, rename current CSVs to the correct names
+
+This will also remove all prefixes and suffixes (of the CSVs in the config file only).
+
+-Kr will also cause all CSVs used in the collection to have their pic number checked
+and fixed or added if it was wrong or missing. Be careful: Bulldog_98 will be renamed
+to Bulldog_101, Bulldog98 becomes Bulldog98_101 (as intended).
+
+--------------------------------------------------------------------------------
+  Create / update CSV files
+--------------------------------------------------------------------------------
+
+WARNING: this feature is intended only for
+1) Scanners
+2) CSV managers (like McBluna)
+The LAST thing we all need is everybody creating his own CSVs and spreading them
+around !!!
+
+O.K., it's really simple:
+
+scansort -C MTCM_MyCollection_153.csv DIR
+
+This reads the CSV file and adds new entries from DIR. If no DIR is given the
+current DIR is used. Note that no config file is used. Any other given options
+are ignored.
+
+If there's no CSV yet, use   scansort -C MTCM_MyCollection DIR
+- the number will be created automatically of course.
+
+There are 4 modifiers:
+-Cc	recalculate ALL CRCs (not only those of new files)
+-Ce	only existing files go to the CSV (by default non-existing entries are kept)
+-Cu     no entries are removed, no new entries added. Entries without CRC
+        are updated if the pic exists.
+-Ca     create CSV for all files in the current folder (not just pics)        
+-Cr	recurse the source directory. This was requested by a scanner who likes
+          to organize his collection in some subdirectories, without making an E-CSV
+
+The comments are always kept of course. New entries get the comment "NEW"
+so that you can run a search in the editor afterwards and add the missing comments.
+
+-CE	You can generate E-CSVs now as well, but they can't be updated (there are
+  	 no comments anyway).
+
+--------------------------------------------------------------------------------
+  Model based collections
+--------------------------------------------------------------------------------
+
+Do you want to convert your collection to a model basis ? Or just take a look at
+ALL your pictures of Lisa Matthews ? Then read on... :-)
+
+The idea is to specify the name of a model and let ScanSort search through all
+descriptions for it (and through the file names as well, since many new collections
+carry the description in the filename only). Now there are always typos, or
+mixed name ordering, so Scansort again declasses all other proggies around
+with it's fuzzy string search algorithm.  :)   ( see C'T 4/97 )
+
+You can set a matching threshold between 20% and 100%. After running it look at
+the log file, there you find all matching pics, and those ALMOST matching (less
+than 20% below the threshold). Now you can lower you threshold to add more pics
+or increase it to sort some out. Use the full name of the model !
+
+-M     		give help on model collections
+-MmModel_Name   specify the name
+-Mm"Model Name" same as above
+
+scansort all.txt -MmPamela_Anderson	 Search collection for Pam with a threshold of 60%
+scansort all.txt -M75mPamela_Anderson	 Search collection for Pam with a threshold of 75%
+
+-Ma	create a Diashow list (AIS format) for ACDSee 2.4. Finally the model feature
+          has become really useful ! :-)
+-Mc	create a CSV file without CRCs (for a quick search through a collection)
+-MC	create a CSV file with CRCs
+-Mp	copy pics that fit. A directory Model_Name is created in the current dir
+	 (or in the directory given with -dt )
+-MnNewName      to rename all pics if you don't like the sometimes strange names
+
+Examples:
+
+copy all pics of Alesha, threshold 80% :
+     scansort all.txt -M80pmAlesha_Oreskovich
+same, but rename pics to Alesha001, Alesha002
+     scansort all.txt -M80pmAlesha_Oreskovich  -MnAlesha
+
+The pics are numbered according to the pics in the database, not the existing pics.
+So if you get more pics later they will be sorted in nicely (as long as the CSVs
+have not changed.)
+
+Please remember that many ScanCollectors are pissed if you rename pictures on
+your Web pages (at least those who don't use ScanSort...  :) )
+
+
+--------------------------------------------------------------------------------
+  Splitting Gully Foyle's Cyberclub CSVs 
+--------------------------------------------------------------------------------
+
+One of the most important (and biggest) collections is the Cyberclub collection
+mirroring Playboy's Cyberclub server and featuring pics of every Playmate EVER,
+every centerfold and evey magazine cover. There is an excellent CSV maintained by my
+friend Gully Foyle, aka Bill. This CSV is close below 10000 pics (as you read
+this probably above), so he has split it by decades and years. There are also
+different naming schemes (stupid original and sensible new names). All these CSV
+did Gully maintain by hand, until I wrote a tool named FSPLIT for him to do this
+automatically. Fsplit was not Y2K compatible however, and I lost the source in a
+mishap some time ago so I made FSPLIT a scansort feature. If you want only FSPLIT
+you can easily use ScanSort simply for this without knowing beans about the other
+features (but maybe you get interested... :-) .
+
+Switches are
+
+scansort -F	give online help
+
+-Fd	split by decade
+-Fy     split by year
+-Fc     split by category (L-Port, L-Head, Cover, Big Centerfold, Chippy-Data
+-Fcd    split by category and L-Port by decade
+-Fo     create L-Port CSV with original names
+-Fod     " , split by decade
+
+You can also create just one big E-CSV. So you have ONE collection and STILL
+everything nicely sorted into subdirectories - the BEST way to use it imho.
+-Fe     create a E-CSV (\decade\year)
+-Fed    create a E-CSV (\decade)
+-Fey    create a E-CSV (\year)
+
+Scansort searches the current directory for files named Foyle_PCC_xxxx_*.csv and splits
+the one with the highest number it finds. If you want to give the name yourself use
+
+-FnCSV_NAME   define CSV to split (default: find automatically)
+
+
+If you have just completed the CC collection and burned it on CD you have the problem
+that it is ever ongoing, with new pics released and sometimes old pics replaced.
+You can create a small CSV out of the current CSV and a certain base CSV representing
+the state of your collection when you recorded it on CD. All portfolios that were added
+or changed since go into the new CSV:
+
+scansort -F  base_CSV
+
+You can combine the base csv option with any other fsplit option.
+
+Play around with the features, see what happens and decide for yourself how you want
+to collect the Cyberclub collection !
+
+--------------------------------------------------------------------------------
+  Advanced features 
+--------------------------------------------------------------------------------
+
+There's a LOT of features which were added by request of some users. They MIGHT
+be useful for all of you, but you won't need them in the beginning.
+
+-L	lowercase all filenames
+-Le	lowercase just all extensions. These two are especially useful under Unix.
+
+-xi     make target dir for Scanmaster_Index Scanmaster\Index
+                    and for ScanmasterExtras Scanmaster\Extras
+-xu     print unused CSV names into logfile (this was always done before),
+          so you can easily add them into your config file. No need to use Wildcards !
+-xb10   ignore bad files if the length of their name (without extension) is less or equal
+        than 10 characters. The idea is to use -xb8 so that Photoshoots (named img00001.jpg)
+        will never be treated as bad.
+-R      do not recurse the given paths (search subdirectories) when searching for pics
+
+
+--------------------------------------------------------------------------------
+  Known Problems
+--------------------------------------------------------------------------------
+
+There are no "known bugs" (I FIX them once I know of them), but some flaws:
+
+There is no GUI (graphical user interface). Yeah, I know, guys. Two reasons:
+1) I like the concept as it is (and so do many of my users). If you use it daily,
+   commandline/configfile is more efficient than any GUI. I admit that it's not so
+   easy to get started with (you might have to read the doku, yuck), but once you
+   know how it works, it is MUCH more powerful than any GUI program.
+
+2) I've never written a GUI program and don't have time at the moment to plunge deep
+   into this. Also I don't know how to design a GUI that is not a nuisance for
+   experienced users.
+Bottomline: there won't me a GUI in the near future. Probably never.
+Well... I've started thinking about it again, since the program has gotten almost
+too complex to handle. Problem is (2). If I HAD the time I would create a GUI version -
+but I can't promise anything.
+
+
+Some pics appear in multiple collections (I'm talking about identical files,
+not often-scanned images). If such a pic is part of a collection on CD and
+so appears in a havefile it will be registered as "HAVE" for all collections
+it appears in. So if you start a new collection where such a pic is part of
+it will be deleted (to the wastebasket now) instead of moved to the collection
+where you want it. You have to seek it out of the waste (or from your CD) and copy
+it manually to your collection. If you have no clue which pic it could be search your
+havefiles with a text editor for the size and CRC of the pic.
+(There was a bug about non-CRC pics in have files which is now fixed.)
+
+Scansort replaces spaces in names with underscores by default (you can turn this
+off with -_ ). Reports with spaces in filenames are now supported for trading, but
+your partners may still complain about the renamed pics. Tell them to stop whining
+and to start using ScanSort... :)
+
+Extra files at the beginning of a report make it unusable for trading, create reports
+WITHOUT them for trading. Or remove them before running ScanSort.
+
+Model collection overwrites pictures in the new path (NOT in the collection of course !)
+if they have the same name. Use -nNewName to rename all pics if you don't like this.
+
+--------------------------------------------------------------------------------
+  Bugs
+--------------------------------------------------------------------------------
+
+It has happened: Scansort has crashed with a General Protection Fault at a user's
+site. The bug is now fixed, but if it should happen again:
+
+- Stay cool. I have had hundreds of crashes during development and NEVER was any
+  damage done. Windows95/98 is not as bad as everybody says.
+
+- Click on "More Info" in the popup window. Write down ALL those hex numbers,
+  ESPECIALLY the IP value. (Or copy/paste them to a text file.)
+
+- Run it again with options -D -v (and all else same of course). Should crash again,
+  but this time there is more information in the logfile. Write down the registers
+  again.
+
+- Send me a mail with the register values, the logfile and the config file
+  (if the logfile is very long send me just the header with the arguments and the
+  last lines.)
+
+- Be prepared for a Bugfix release (hmm - can't promise much anymore...  :-| )
+
+Thank you for the help !
+
+--------------------------------------------------------------------------------
+  Source and Unix
+--------------------------------------------------------------------------------
+
+Scansort has now "Open Source" status, meaning the source is included for everybody
+to look at, modify, etc. under the GNU General Public License, see "COPYING".
+The idea is that everybody can create works based on Scansort and release them,
+but he must include the source as well and credit Scansort of course. Also,
+it would me nice to send me a copy of such works as well.
+The source comes with two makefiles, one for Unix, one for Windows. It compiles
+and runs fine under both Linux and Solaris, other platforms were not tested. Drop me
+a line if you get it compiled somewhere else (should be no problem) and if any problems
+come up. A readme.unix comes with the source.
+To compile it under Windows you must have Microsoft Visual C++ (5 or greater) installed.
+Open a Dos box and run the Vcvars32.bat located in VC\bin to set up the environment,
+then compile it with  nmake /f makefile.win32  
+
+--------------------------------------------------------------------------------
+  The Future of Scansort
+--------------------------------------------------------------------------------
+
+Well, folks, I've spent quite a lot of time recently in the scan collecting business
+(some with Scansort itself, some more collecting pics just like everybody else). Now I 
+have to rearrange the priorities in my life a bit, meaning I'll probably stop collecting
+pics (or at least switch several gears back). And my daily monitoring of my Hotmail
+account, answering questions on the fly (sometimes) will be a thing of the past as well.
+
+The real cut is NOW (end of August 99). I fixed a few bugs, added some of the submitted
+requests and integrated code to split up Gully Foyle's excelent Cyberclub CSVs,
+but that's it, alas. After today I probably won't find time
+to develop it much further - the GUI version I have made some thoughts about will NOT
+be done, at least not by me. However if you find bugs please report them, especially
+crashbugs. If there's something critical there will be a bug fix release, that's a
+debt of honor for me. Just don't be disappointed if it takes 1-2 weeks till you get
+a response.
+
+Since the source is released now the development of Scansort is not forced to stop.
+If anybody wants to do some improvements feel free to send me the source diffs.
+I've not decided yet if I'll keep or pass on the maintenance of the official source
+of Scansort, but the GNU Public License means everybody is free to release modified
+versions, as long as the source is included. If you want to release a new version
+please contact me before or at least send me a copy after releasing.
+
+Have fun collecting pics, just remember they are not just thousands of files, but
+PICS of beautiful women that deserve to be looked at at least once. And don't forget
+that there are REAL women out there as well who are just as beautiful... ;-)
+
+Take care,
+
+Stu
+
+
+sturedman@hotmail.com
+http://www.geocities.com/SouthBeach/Pier/3193/
+
+Changes were moved to ChangeLog
+

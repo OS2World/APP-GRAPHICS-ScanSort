@@ -1,0 +1,431 @@
+ScanSort 1.81 	Changelog	27.08.99   		 sturedman@hotmail.com
+Homepage: 		http://www.geocities.com/SouthBeach/Pier/3193/
+
+--------------------------------------------------------------------------------
+1.00	30.10.97
+
+The beginning !
+
+--------------------------------------------------------------------------------
+1.10	26.11.97
+
+Fixed nasty bug (well... - lack of constraint) where overlapping source
+  and target path with -m option would delete pictures.
+  No more danger there now !
+
+Help message if wrong switch entered.
+
+-l to suppress logfile
+
+-H and -rH to create list of all files you have
+-h to import this list (for collections that span multiple volumes)
+
+Configurable reports
+
+create ACDSee descript.ion files
+
+automatically repair corrupt EOF marker (sometimes last byte of pic is 0)
+
+handle CSV-files without CRCs more gracefully (don't terminate)
+
+switches can stand anywhere in command line and at beginning of config file
+
+-d to set paths for CSV-Files and reports
+
+removed some messages from -v, improved readability of logfile 
+
+--------------------------------------------------------------------------------
+1.20	28.11.97
+
+Support CSVs without CRCs
+
+Fixed duplicate filecount bug for MTCM report summaries
+
+-rD	create hidden descript.ion
+-rC	create Colver-style report
+
+switched linking to static (faster and more reliable, but bigger EXE-File) 
+
+--------------------------------------------------------------------------------
+1.30    08.12.97 
+
+Added trading functions !
+
+-dp     set target directory (instead of current)
+-K	kill duplicate CSV-files
+
+Fixes:
+  can overwrite read-only pics 
+  can rewrite hidden descript.ions under NT
+  can read have-files with CRC==0
+  don't report files witout CRC as "wrong CRC" with -rc
+  don't report directories as extra files with -a option
+  remove last part of CSV-name only if it is a number
+
+--------------------------------------------------------------------------------
+1.40    12.12.97 
+
+-tz     create Zipfiles for trading (PKZip required)
+        write file need.txt to keep book which files you have already sent
+
+Handle bad files (by name)
+-b      always delete them
+
+automatic repair of files with extra bytes appended 
+
+
+--------------------------------------------------------------------------------
+1.41    16.12.97
+
+fixed bug which crashed program on some reports
+switched from PKZip to InfoZip (long filenames !), removed -tb
+support Draco Reports (with lots of '|' )
+
+-tZname 	set basename for zips
+-_ 		don't replace spaces in filenames by underscores (yuck)
+-rS 		print summary for all collections
+
+
+
+--------------------------------------------------------------------------------
+1.42    22.12.97
+
+another bugfix (sigh...)
+... had added a comment to the beginning of havefiles which made them invalid ...
+Now havefiles are run through even if there are corrupt entries.
+
+--------------------------------------------------------------------------------
+1.50    19.01.98
+
+Well, folks, Scansort has reached now more than 3000 lines of code. I have changed
+a LOT of internal stuff in this release to optimize memory usage and I just hope
+I tied up all lose ends. But if you have ever written a program, you know that
+"those bugs have a way of saying 'crunch' and then running away when you lift
+your foot" (Mike Gummelt, Hexen II Team, Raven Software)...
+
+There are NO known bugs in this release, so please tell me if you find one. There
+are some probably, it's impossible to check all kombinations of environments and switches.
+
+Changes:
+
+-C -Ce -Cc -Cce   create/update CSV files
+wildcards in configfile, reports can be suppressed individually
+reduced memory usage
+don't reject complete CSV if some entries are with zero length 
+removed quotes from descriptions
+sort CSVs by name
+if verbose (-v) check database for "same name in same target dir" and "same pic in several collections"
+write all switches to logfile
+verbose summary -rS now useful in logfile
+-dbDIR  set target directory for bad files
+bad files are now only copied if they are at least 40% of the original, and never overwritten 
+
+changed format of havelist to CSV-Style, -rHs creates special format for database export
+
+trading:
+Proceed multiple reports in one run! Sync your whole collection with your friends!
+-rT: create HTML tables for trade pages 
+accept multiple source paths for trading, and either the actual path (as before)
+  or a collection base path
+-tA, -tO, -tG  create verbose named Textfiles
+backup give.txt before overwriting
+changed default number for giving from 5 to "all"
+
+fixed:
+  source-target-overlap check works now (cross your fingers !)
+  -K works now together with -dc
+  files with spaces or 'â' in the name are now always recognized (they are still a nuisance)
+  close logfile on error
+
+--------------------------------------------------------------------------------
+1.60    16.02.98
+
+create model collections
+switched to version 2.2 of InfoZip (this won't run with ScanSort 1.50)
+some output goes now to the logfile only with -v (default logfile MUCH smaller)
+removed dumb special characters (like â, é) from picture names (for Kâta and Renée ...)
+  (these are a nuisance once you burn a CD)
+remove CSV prefixes only if they are "MTCM_", "McBluna_", "SSMC_" or "Checker_"
+-B    leave bad files alone
+
+config file:
+-     exclude collection from wildcard list
+=     delete CSV file
+
+reports:
+added Kilobytes to summaries
+removed empty collections from -rS output
+added empty collections to -rT output
+added summary output for complete collections
+-rf   freshen (only write reports where new pictures have arrived)
+always write verbose summary to logfile
+
+trading:
+-tr   choose at random, default now alphabetical
+-tf, -tF make a test run without copying anything
+-tm, -tM  make list of files missing in both collections   
+can give a trading quantum (e.g. 10 MB) for collection matching
+delete report files if everything is given or need_....txt is created
+
+fixes:
+-K : delete same-sized duplicates (the first in the config file remains)
+     (like MTCM_AdmiralKrag_2138 and McBluna_AdmiralKrag_2138)
+-s : works again (got broken in 1.50 and NOBODY noticed it)
+Output redirection works again     
+could crash with GPF when creating CSVs
+
+
+
+--------------------------------------------------------------------------------
+1.61    05.05.98
+
+abort after 3 failures to write pics to target path (e.g. if disk full)
+don't delete small bad pictures with -m by default any more, move to BadPictures instead.
+   Use -b40 to get behaviour as before (move if > 40% of original size, delete otherwise)
+collection name for e.g. MTCM_GerPBpcd_(FINAL)_143.csv is now
+   GerPBpcd instead of GerPBpcd_(FINAL)
+treat "unknown" comments in CSVs same as missing comments
+-rT   create CSV zips automatically, create everything in the reportpath
+-rTv  vacation-table, no text links
+-ro   output summary to "summary.txt" in the report path  
+split summary table in complete and incomplete collections
+warn if a CSV with more pics is smaller (probably no comments in it)
+-l (suppress logfile) now allowed in config file
+-R   do not recurse subdirectories when searching for pics	
+added summary (nr of pics, kbytes) to trading reports (ask.txt, offer.txt)
+-Cu  update those entries of a given CSV for which pics are available and the CRC is 0
+support OCP_ and Foyle_ prefixes for CSVs
+support reports from Solaris Piccheck for trading
+   
+
+Fixes:
+ Have-files including pics without CRCs were not read correctly
+ -H got broken in 1.60 when run with the collection path as target 
+ don't handle bad files when creating a havelist (-H)
+ Comments in config file behind entries work now - like
+     MTCM_ScanMaster_1000.csv		# one of the finest
+ collection name for e.g. SDC_60.csv was SDC_60 instead of SDC (CSVs without prefix)
+ Trading: a have-list could be interpreted as miss-list when it was a Unix textfile
+           (e.g. a textfile from Geocities)
+          changed reports for wrong sized pics so they are recognized when trading 
+ -db (set Path for bad pictures) failed if path already existed
+ zero-length bad-files are now deleted (with -m or -b)
+
+--------------------------------------------------------------------------------
+1.62    17.05.98
+
+handle extra files in collection: try to identify them and copy them to the correct name.
+       With -m the old file is removed after succesful copy.
+       With -E (new switch) all extra files are removed (after trying to identify them).
+Filenames with cases different than in CSV are now renamed automatically
+       (e.g. AV_lynne_austin_cov97_01.jpg to AV_Lynne_Austin_Cov97_01.jpg)
+allow hierarchical target paths like Light&Magic, Light&Magic\Pictorials
+-rT  use trade.tpl as template to create trade.html with inserted HTML-Tables and date
+-rf  update reports when CSV is newer than existing report
+-tw  trade whole collections (where your partner has no pics yet)
+print pics without CRC to logfile in verbose mode (max 3 per collection)
+      to track down CSV-Bugs like in MTCM_AVScans_365.csv:
+        AV_Lynne_Austin_Cov97_01.jpg,114852,2BCG91E7,Lynne Austin - Cover Girls 97
+log contents of created zipfiles to zip.log (appending)
+added CSV date/time to reports
+don't add empty comments ("?") to reports
+
+Fixes:
+don't create empty ask/offer/miss-files 
+don't print 100% o.k in summary for large collections with few pics missing
+don't treat opened files (e.g. with download in process) as bad 
+
+
+--------------------------------------------------------------------------------
+1.63    17.06.98
+
+Support multiple collections in one directory. Without limitations.
+-rHb  create a havelist "have.bin" in binary format - much smaller, much faster to import
+-dwDIR  set DIR as wastebasket directory (instead of .\ScanSortWaste )
+      All files are now moved to the wastebasket instead of deleting them
+      (except files that were really copied to the collection)
+-w    turn wastebasket feature off      
+trading:
+-tg   1-500:number of pics, 501-...:number of kilobytes to give (threshold was 1000 before)
+improved report parser again; supports now reports with spaces in names
+      or crippled extensions (Mastertech bug), support Draco v0.221 reports ("okay")
+
+Fixes:
+don't delete pics of collections sharing the same directory any more =:-(
+      (happened in 1.62 with -m when reports were generated. Sorry folks ! )
+don't crash when last file in alphabetical index turns up as bad :-(
+don't convert new filenames to uppercase during CSV generation if they have more than 8 characters
+make switch plausibility checks BEFORE reading all CSVs
+-rT: replace in HTML table number of "missing" by number of "needed"
+
+--------------------------------------------------------------------------------
+1.64    20.07.98
+
+Support for E-CSVs (entries like img0002.jpg,162772,b64456a8,\Amanda Weaver (Bonita Saint)\, )
+Support collections with mixed picture types (gif and jpg) (use -a switch)
+Files in BadPictures or in the waste are now renamed instead of overwritten
+-rE   suppress empty reports (e.g. of completed collections)
+-rR   recurse collection for report generation, like in versions before 1.61
+      This is not recommended and only needed if pics were manually moved to subfolders.
+-rn   add numbers of have/all to report names (like CSA_239-240.txt )
+-rA   report all collections (even inactive ones)
+removed (undocumented) support for comments in CSV files - now the
+      SWA_1st_Anniversary_Collection (with all picnames beginning with '#') can be handled
+trading: UNKNOWN / EXTRA files are treated as have now
+removed CC from prefix list so that CC pictorials now keep their prefix
+can create several levels of directories now
+show in logfile which csvs have descriptions or are E-CSVs (a 'D'/'E' after the CRC info)
+create descript.ion only if there are descriptions in the CSV (otherwise remove it)
+add info about location of pics to summary (when using have files)
+-T    touch pics when moving them to the collection (set date/time to current)
+
+Fixes:
+lines in trading reports could be ignored (I start hating this piece of code... :-[ )
+handle CSV names like SI_044-Michelle.csv (number behind underscore INSIDE) correctly
+
+--------------------------------------------------------------------------------
+1.641    22.07.98
+
+Fixed a damned bug which could crash Scansort during report generation
+
+--------------------------------------------------------------------------------
+1.642    07.08.98
+
+add info about how many kb a collection uses on your harddisk to summary.txt 
+    (very useful for burning CDs !)
+Fixes:
+-rc would crash in 1.64 and 1.641. Damn. :-(
+sometimes trading would recognize the wrong collection
+
+--------------------------------------------------------------------------------
+1.7      16.10.98
+
+changed format of config file: now using collection names instead of csv names (SEE DOKU !)
+speedup on startup
+-K will clean up ALL files in the CSV folder, not only those currently in use
+-pMTCM	define MTCM_ as collection prefix
+-PMTCM	define MTCM_ as collection prefix which will be removed with -K
+-rr	in config file: supress report generation.
+        in config file AND in command line: generate reports again.
+        The idea is to keep all the report options in the config file, but do the lengthy
+        report generation only on deman. However if you use -rf (freshen) and pics were
+        added to a collection the report for this collection IS generated.
+        If you use -rT (HTML-table) or -rH (have-list) -rr is ignored.
+-Ca	create CSV for all files in the current folder (not just pics)
+-hx	ignore all havelists (so you don't have to comment out every single one)
+don't check all collections when trading and no report options are given (or -rr is used)
+print a message when a collection was just finished (only when reports are generated)
+automatically identify file extensions used in the collections (like gif, mpg, nfo).
+        No more need to use -a !
+renaming/moving of extra files now only with -m (except case changes)
+don't count moved files as deleted any more, list deleted files in output
+add screen messages when CRC-Checking collections
+-Hb     create binary havelist (before only possible as -rHb, see doku)
+
+Fixes:
+-rA would not print inactive collections to summary
+non-jpg files were tried to be repaired even if they were o.k.
+add path in collection when reporting extra files in an E-CSV collection
+
+--------------------------------------------------------------------------------
+1.71     26.01.99
+
+ignore "scan"/"scans" in collection names - "Nightwing" and "Nightwing_Scans" is the same now
+        ( except in the beginning, so "Scanbyte" and "Bytescans" stay different )
+-rI some comment  - add some comment to every report
+-rx     export all missings to missing.csv
+-Kr	clean up CSVs and rename them to the collection names. This also removes all prefixes.
+bad files in the collection now go to the waste when good ones appear (there could be bad pics
+        complete with a bad CSV cause good pics to be overwritten)
+show extensions in report if collection has different file types
+ditched the Colver joke
+removed source paths for screen output ("Moved xxx to yyy")
+create report path(s) if necessary
+add list of collections not used to log file
+
+Fixes:
+when moving bad pics to BadPictures they were renamed to random filenames sometimes :-(
+inserted carriage return after summary output
+don't abort reading a havelist when there are bad entries in it
+NEVER report descript.ion as "extra file" (could happen before when using -a)
+don't handle any bad files when scanning with -H
+
+--------------------------------------------------------------------------------
+1.8       02.07.99
+
+Source code released
+Unix port
+
+extras are now written to the end of a report
+summary doesn't list a CD for a collection if all pics are on HD
+-L	lowercase all filenames
+-Le     lowercase just all extensions
+convert missing.csv (-rx) to E-CSV format
+summary: make extra section for inactive collections (only output with -rA),
+         label sections (complete, incomplete, inactive)
+support names with commas in CSV (if enclosed in "") (also in havelists and CSV generation)
+-d switches now support the ~ char which stands for your home directory under unix.
+   You can use this under Windows as well if you type like   set HOME=d:\scans 
+   before running Scansort.
+multiple CSV paths possible now
+recognize a CRC of 0xAAAAAAAA as a dummy
+-p / -P can be used to handle suffixes as well.
+recognize something_300f.csv and something_300_final.csv correctly
+-xi     make target dir for Scanmaster_Index Scanmaster\Index
+                    and for ScanmasterExtras Scanmaster\Extras
+-xu     print unused CSV names into logfile (this was always done before)
+-xb10   ignore bad files if the length of their name (without extension) is less or equal
+        than 10 characters. The idea is to use -xb8 so that Photoshoots (named img0001.jpg)
+        will never be treated as bad.
+trading: support simple request lists (just one filename per line, no size)
+-CE     create E-CSVs
+-Cr     recurse source directory for CSV creation
+-Ma	create a Diashow list (AIS format) for ACDSee 2.4. Finally the model feature
+          has become really useful ! :-)
+-rX     export missings into CSVs (one per collection). Yeah, you've talked me into
+          this. Now I just hope everybody will be able to tell the difference between
+          "real" CSVs and requests on the newsgroups... :-|
+-sName  single collections can now be used together with a config file. In this case,
+          all the paths and switches from the config file are used, but the collections
+          are ignored. Only the collections from the commandline are used.
+          Great for speeding up trading.
+-hcd*.bin   wildcards are now allowed for importing havelists. Warning: the order of the
+            import is determined by the OS (meaning random), so I suggest you don't use
+            wildcards (see doku)
+removed limit of 250 for havelists  
+
+Fixes:
+pictures named only in digits (990733.jpg) now work in standard havefiles
+ignore brief flag (no comments, -rb) when reporting E-CSVs
+Scansort would crash NASTY on corrupt CSVs. Limited filenames to 100 chars
+  and E-CSV-paths to 150 chars to prevent this.
+only write inactive collections to missing.csv with -rA
+don't write "HD" in the summary if there's just an empty target path
+"on HD" item in summary didn't include pics sorted in in the current run
+Model search didn't treat spaces and underscores as same
+
+--------------------------------------------------------------------------------
+1.81      27.08.99  - probably final version
+
+-rN	export missings into filter files for Forte Agent Newsreader
+-dN     set directory for filter files
+-rT	include missing.csv in request.zip 
+missing-CSVs : append a comma on E-CSV-missings so Hunter can digest them better
+-F      split Cyberclub CSVs from Gully Foyle
+-hb     convert all ASCII havelists to binary
+-dCpath Set a path where Scansort should move all CSVs in use to. If there are
+        two -dC the first will be for incomplete, the second for complete collections.
+        (If a CSV becomes UNUSED it won't be moved back however.)
+Unix:   default align in makefile.gcc is 0 now (for Intel-Linux).
+        Sparc users, set ALIGN to 7 or get nice Bus Errors ! 
+
+Fixes:
+Scansort could crash on CSVs named like _Ongoing_1148.csv
+-h : ~ for homedirectory was not supported, no warning if a wildcard didn't match anything
+trading: check if reportfiles exist before reading everything
+strange characters (umlauts) are replaced again (broken in 1.8)
+handle collections > 2GB correctly (no more negative kbs in summary)
+Unix can handle CSVs with extension .CSV (or .Csv or whatever) now
+there may have been a problem in 1.8 handling entries without CRC in text havelists
+Extras in report are now sorted
+

@@ -1,0 +1,69 @@
+# Scansort 1.8 sample config file
+
+# Path for CSV files 
+-dcc:\scan\csv
+# Path where Scansort should move incomplete collections (or all if there's no 2nd -dC )
+#-dCc:\scan\csv_incomplete
+# Path where Scansort should move complete collections
+#-dCc:\scan\csv_complete
+
+# Path of your collection
+-dpc:\scan\pictures
+# Path for reports
+-drc:\scan\reports
+# additional source path on CD for trading
+-dse:\scan
+# create reports of missing, incorrect and extra files, with summary but without descriptions
+-rmiesb
+# add a comment to every report
+-rICollector: Joe Doe
+# import a list of files you already have
+#-hc:\scan\CD1.txt
+
+# just a few collections for example. Fill in your own.
+451
+A-Scan98
+A-Scan98_NP
+Alone2edit_TtSR
+Angel_SCP
+Anzacs
+AVScans
+BadgerScan
+Bart98
+Batscan_SWA
+Bulldog98
+Colibri_SWA
+CoolHand_New_Millenium
+
+# You can modify the target path to create hierarchies
+ScanMaster
+ScanMaster_Extra	-pScanMaster\Extras
+ScanMaster_HQ		-pScanMaster\HQ
+
+# or put collections into different places
+L-Port			-pd:\L-Ports
+
+# You can put several collections in the same place
+Gorek                           
+Gorek_Independent       -pGorek       
+Gorek_SWA               -pGorek        
+Gorek_SWA-II            -pGorek        
+Goreks                  -pGorek        
+
+# You can also use other names for the reports (though that shouldn't be necessary)
+ZorroScans_SDC     	-rZorros.txt
+# or suppress the reports
+BigCenterfolds		-r
+
+
+# You can even use spaces in your names (YUCK !) with quotes
+"Light & Magic HQ"
+
+# You can define alternate CSV names
+Euroscan_New 	euronew
+Euroscan_SCP	euroscp
+Felines     	echoscan-feline  FelinesByEchoscan
+
+# If you want you can put all the rest in a directory misc, with no reports to be written
+# * -pmisc -r
+
